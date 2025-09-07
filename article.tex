@@ -675,6 +675,21 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
                     Circles are distinct from surrounding nodes, unlike squares. 
 
          \begin{itemize}
+          \item \textbf{Zero rule:}~\\
+            \begin{center}
+        \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+            % Left side (before)
+            \node[state] (p1) at (0,0) {};
+            \node[state] (q1) at (0,-1.8) {};      
+            % Arrow between rules
+            \node (i) at (2,-0.9) {$\twoheadrightarrow_{\mathsf{0}}$};
+            %\node[below=1.2cm of i] {Zero rule};
+            % Right side (after)
+            \node[state] (p2) at (4,0) {};
+            \node[state] (q2) at (4,-1.8) {};
+            \draw[arr] (p2) to node[right] {$0$} (q2);  
+        \end{tikzpicture}~\\
+            \end{center}
             \item \textbf{Parallel transitions merge:}~\\
             \begin{center}
                     \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
@@ -694,35 +709,35 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
             \draw[arr] (p2) to node[right] {$e+f$} (q2);
         \end{tikzpicture}~\\
             \end{center}
-    \item \textbf{Loopless state elimination} (the circle state is not initial, nor final):~\\
-    \begin{center}
-     \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
-            % Left side (before)
-            \node[state] (p1) at (4,0) {};
-            \node (d1) at (4.5,0) {$\dots$};
-            \node[state] (q1) at (5,0) {};
-            \node[circ] (r1) at (4.5,-1.2) {};
-            \node[state] (s1) at (4.5,-2.4) {};
-            \draw[arr] (p1) to node[left] {$e_1$} (r1);
-            \draw[arr] (q1) to node[right] {$e_n$} (r1);
-            \draw[arr] (r1) to node[right] {$f$} (s1);
-            \node (d1') at (4.5,-.6) {\tiny $\dots$};
-            % Arrow between rules
-            \node (i) at (6.5,-1.2) {$\twoheadrightarrow_{\mathsf{d}}$};
-            %\node[below=2cm of i] {Loopless state elimination};
+    % \item \textbf{Loopless state elimination} (the circle state is not initial, nor final):~\\
+    % \begin{center}
+    %  \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+    %         % Left side (before)
+    %         \node[state] (p1) at (4,0) {};
+    %         \node (d1) at (4.5,0) {$\dots$};
+    %         \node[state] (q1) at (5,0) {};
+    %         \node[circ] (r1) at (4.5,-1.2) {};
+    %         \node[state] (s1) at (4.5,-2.4) {};
+    %         \draw[arr] (p1) to node[left] {$e_1$} (r1);
+    %         \draw[arr] (q1) to node[right] {$e_n$} (r1);
+    %         \draw[arr] (r1) to node[right] {$f$} (s1);
+    %         \node (d1') at (4.5,-.6) {\tiny $\dots$};
+    %         % Arrow between rules
+    %         \node (i) at (6.5,-1.2) {$\twoheadrightarrow_{\mathsf{d}}$};
+    %         %\node[below=2cm of i] {Loopless state elimination};
 
-            % Right side (after)
-            \pgfmathsetmacro{\shift}{8}
-            \node[state] (p2) at (\shift,0) {};
-            \node[state] (q2) at (\shift+1,0) {};
-            \node[state] (s2) at (\shift+0.5,-2.4) {};
-            \draw[arr] (p2) to node[left] {$e_1f$} (s2);
-            \draw[arr] (q2) to node[right] {$e_nf$} (s2);
-            \node (d2) at (\shift+0.5,0) {$\dots$};
-            \node (d2') at (\shift+0.5,-1.2) {{\tiny $\dots$}};
-        \end{tikzpicture}\\
-    \end{center}
-       \item \textbf{Loop elimination} (the circle state is not initial, nor final):\\
+    %         % Right side (after)
+    %         \pgfmathsetmacro{\shift}{8}
+    %         \node[state] (p2) at (\shift,0) {};
+    %         \node[state] (q2) at (\shift+1,0) {};
+    %         \node[state] (s2) at (\shift+0.5,-2.4) {};
+    %         \draw[arr] (p2) to node[left] {$e_1f$} (s2);
+    %         \draw[arr] (q2) to node[right] {$e_nf$} (s2);
+    %         \node (d2) at (\shift+0.5,0) {$\dots$};
+    %         \node (d2') at (\shift+0.5,-1.2) {{\tiny $\dots$}};
+    %     \end{tikzpicture}\\
+    % \end{center}
+       \item \textbf{State elimination} (the circle state is not initial, nor final):\\
         \begin{center}\begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
             % Left side (before)
             \node[state] (p1) at (6,0) {};
@@ -750,6 +765,23 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
             \node (d2') at (\shift+0.5,-1.2) {{\tiny $\dots$}};
         \end{tikzpicture}\\
     \end{center}
+    \item \textbf{Renaming} (when $e \equiv f$): \\
+    \begin{center}
+        \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+            % Left side (before)
+            \node[state] (p1) at (0,0) {};
+            \node[state] (q1) at (0,-1.8) {};  
+
+            \draw[arr] (p1) to node[right] {$e$} (q1);
+            % Arrow between rules
+            \node (i) at (2,-0.9) {$\twoheadrightarrow_{\mathsf{r}}$};
+            %\node[below=1.2cm of i] {Renaming};
+            % Right side (after)
+            \node[state] (p2) at (4,0) {};
+            \node[state] (q2) at (4,-1.8) {};
+            \draw[arr] (p2) to node[right] {$f$} (q2);  
+        \end{tikzpicture}~\\
+            \end{center}
     \item \textbf{Factorization} :\\
     \begin{center}
           \begin{tikzpicture}[scale=1.0, every node/.style={transform shape}]
@@ -792,16 +824,18 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
         \end{tikzpicture}\\
     \end{center}
     \end{itemize}
-    In words, if in a chart, some $q_1,\dots, q_m $ have a common subset
-     $S$ of derivatives, that is
-    $S\subseteq D(q_i)$ for every $i\in[1,m]$. Then the rewriting rule 
+    We let $\twoheadrightarrow$ denote the union of all these rewriting rules.
+    \end{definition}
+    \begin{remark}
+   If in a chart, some states $q_1,\dots, q_m $ have a common subset
+     $S$ of derivatives, then the rewriting rule 
     $\twoheadrightarrow_{\mathsf{f}}$:
     \begin{itemize}
     \item creates a fresh state $q$ such that $D(q)=S$,
-    \item removes $S$ from $D(q_i)$ and adds $(1,q)$, for every $i\in[1,m]$.
+    \item removes $S$ from the derivatives of $q_i$ and adds $(1,q)$, for $i\in\{1,\dots,m\}$.
     \end{itemize}
-    We call the states $q_1,\dots, q_n$ \emph{partners} and $q$ their \emph{factor}.
-
+    %We call the states $q_1,\dots, q_n$ \emph{partners} and $q$ their \emph{factor}.
+    \end{remark}
     % We denote by:
     % \begin{itemize}
     %     \item $\twoheadrightarrow$ the union of the above rewriting rules.
@@ -838,7 +872,7 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
         %         \draw[arr] ([xshift=-5mm]p1.west) to (p1);
         %     \end{tikzpicture}
         % \end{center}
-         \end{definition}
+     
         
         %         \begin{figure}[h!]
         %     \begin{flushleft}
@@ -970,7 +1004,7 @@ As in the classical state-elimination algorithm, we apply the rewriting system o
 \end{definition}
 
 \begin{definition}
-For very regular expressions $e$, we let ${N}(e)$ be the following chart:
+For every regular expressions $e$, we let ${N}(e)$ be the chart:
 \begin{center}
         \begin{tikzpicture}[
       >=Latex,
@@ -992,9 +1026,8 @@ For very regular expressions $e$, we let ${N}(e)$ be the following chart:
 \end{definition}
 
 \begin{definition}
-    A chart $C$ is \emph{reducible} if there is a regular expression $e$ such that:
+    A chart $C$ is \emph{reducible} if there is a regular expression $e$ where:
      $$\llbracket C\rrbracket \twoheadrightarrow^* N(e).$$
-
 \end{definition}
 
 
@@ -1052,11 +1085,21 @@ For very regular expressions $e$, we let ${N}(e)$ be the following chart:
 % \subsection{ Milner chart of a regular expression is reducible}
 
 
-\begin{lemma}\label{prop:Milner-is-reducible}For every regular expression $e$,
-     there is a regular expression $f$ such that $e\equiv f$ and:
-     $$\underline{M}(e)\twoheadrightarrow^*
-      N(f)$$
-   where $\underline{M}(e)$ is the sink completion of $M(e)$.
+% \begin{lemma}\label{prop:Milner-is-reducible}For every regular expression $e$,
+%      there is a regular expression $f$ such that $e\equiv f$ and:
+%      $$\underline{M}(e)\twoheadrightarrow^*
+%       N(f)$$
+%    where $\underline{M}(e)$ is the sink completion of $M(e)$.
+% \end{lemma}
+
+\begin{definition}
+  Let $C$ be a chart. We let $C-1$ be the chart obtained from $C$ by removing the initial state 
+  from the set of final states if it belongs to it.
+\end{definition}
+
+\begin{lemma}
+  If $M$ and $N$ are two rooted reducible charts, then $M+N$ and $M \cdot N$ are also reducible. 
+  If moreover $M \Uparrow$, then $M^*$ is reducible.  
 \end{lemma}
 
 \section{Labeling Charts}
