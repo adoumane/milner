@@ -58,6 +58,8 @@
 % For clever referencing (optional, but useful)
 \usepackage{cleveref}
 \usepackage{lmodern,amsmath,amssymb}
+%for lowercase calligraphic math
+\usepackage{boondox-cal}%for lowercase \mathcal
 \usetikzlibrary{arrows.meta,positioning,calc}
 \usetikzlibrary{decorations.pathmorphing}
 \tikzset{
@@ -77,6 +79,7 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
 \newtheorem{lemma}[definition]{Lemma}
 \newtheorem{proposition}[definition]{Proposition}
 \newtheorem{theorem}[definition]{Theorem}
+\newtheorem{claim}[definition]{Claim}
 \newtheorem{corollary}[definition]{Corollary}
 \newtheorem{remark}[definition]{Remark}
 \newtheorem{example}[definition]{Example}
@@ -1030,8 +1033,16 @@ For every regular expressions $e$, we let ${N}(e)$ be the chart:
      $$\llbracket C\rrbracket \twoheadrightarrow^* N(e).$$
 \end{definition}
 
+\begin{definition}
+    A regular expression is \emph{safe} if in every sub-expression of the form $f^*$, we have $f\Uparrow$.
+\end{definition}
 
-\begin{proposition} For every regular expression $e$, $M(e)$ is reducible.
+\begin{proposition}
+  Every expression is equivalent to a safe one.
+    ~\label{prop:every-expression-is-equivalent-to-a-safe-one}
+\end{proposition}
+
+\begin{proposition} For every safe expression $e$, $M(e)$ is reducible.
     ~\label{prop:Milner-is-reducible}
 \end{proposition}
 
@@ -1092,10 +1103,10 @@ For every regular expressions $e$, we let ${N}(e)$ be the chart:
 %    where $\underline{M}(e)$ is the sink completion of $M(e)$.
 % \end{lemma}
 
-\begin{definition}
-  Let $C$ be a chart. We let $C-1$ be the chart obtained from $C$ by removing the initial state 
-  from the set of final states if it belongs to it.
-\end{definition}
+% \begin{definition}
+%   Let $C$ be a chart. We let $C-1$ be the chart obtained from $C$ by removing the initial state 
+%   from the set of final states if it belongs to it.
+% \end{definition}
 
 \begin{lemma}
   If $M$ and $N$ are two rooted reducible charts, then $M+N$ and $M \cdot N$ are also reducible. 
@@ -1105,14 +1116,13 @@ For every regular expressions $e$, we let ${N}(e)$ be the chart:
 \section{Labeling Charts}
 
 \begin{definition}
-A \emph{labeling} $(\ell, e)$ of a chart $C=(Q, \Sigma^*, \Delta, I, F)$ is a function 
-$\ell:Q \mapsto Re(\Sigma^*)$ 
-and a regular expressions $e$ such that:
-\begin{itemize}
-\item $\ell(I)=e$,
-\item $ \ell(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + f(\ell(p))$, for every $p\in Q$.
-\end{itemize}
- We say that a Chart  is \emph{labelable} if it admits a labeling.
+A \emph{labeling} of a chart $(Q, \Sigma^*, \Delta, I, F)$ is a function 
+$\ell:Q \mapsto Re(\Sigma^*)$ satisfying, for every state $p\in Q$
+$$\ell(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + f(\ell(p)).$$
+
+The \emph{root} of the labeling is the label of the initial state.
+
+ We say that a chart  is \emph{labelable} if it admits a labeling.
 \end{definition}
 
 
@@ -1128,80 +1138,59 @@ and a regular expressions $e$ such that:
 \end{example}
 
 
-\subsection{Minler charts are labelable}
-\begin{proposition} For every regular expression $e$, $M(e)$ has a labeling $(\ell,e)$.~\label{prop:milner-chart-is-decorable}
+\subsection{Milner charts are labelable}
+
+\begin{proposition} For every expression $e$, $M(e)$ has a labeling with root $e$.~\label{prop:milner-chart-is-decorable}
 ~\label{prop:Milner-is-decorable}\end{proposition}
 
-\subsection{Reducible implies labelable}
-\begin{proposition}
-    If a chart is reducible, then it is labelable. ~\label{prop:reducible-implies-decorable}
-\end{proposition}
+% \subsection{Reducible implies labelable}
+% \begin{proposition}
+%     If a chart is reducible, then it is labelable. ~\label{prop:reducible-implies-decorable}
+% \end{proposition}
 
 
 
-\begin{definition}
-We say that a cycle is final if all its labels are final. A chart is safe if it has no final cycle.
-\end{definition}
+% \begin{definition}
+% We say that a cycle is final if all its labels are final. A chart is safe if it has no final cycle.
+% \end{definition}
 
-\begin{lemma} Safe charts are closed under reduction.\end{lemma}
-    \begin{lemma}
-    Let $C$ and $D$ be two charts such that $C \twoheadrightarrow D$. If $D$ is labelable,
-     then so is $C$.   \end{lemma}
+% \begin{lemma} Safe charts are closed under reduction.\end{lemma}
+%     \begin{lemma}
+%     Let $C$ and $D$ be two charts such that $C \twoheadrightarrow D$. If $D$ is labelable,
+%      then so is $C$.  
+%      \end{lemma}
 
      \subsection{Two decorations of a chart}
 
-\begin{proposition}
-    If a reducible chart has two labelings  $(\ell,e)$ and $(\ell',e')$, then $e \equiv e'$.~\label{prop:two-decorations-implies-equiv}
-\end{proposition}
+  
 
+\begin{proposition}
+   If a reducible chart has two labelings with roots $e$ and $e'$, then $e \equiv e'$.~\label{prop:two-decorations-implies-equiv}
+\end{proposition}
+\begin{proof} Let $C$ be a chart reducible to $N(f)$. We show that if $C$ has a labelling with root $e$, then $e\equiv f$.  This is enough to conclude the proposition. 
+  
+ 
+
+  \begin{claim} Let $S$ and $T$ be two charts such that $S \twoheadrightarrow T$. 
+    If $S$ has a labelling, then $T$ has also a labelling with the same root.
+  \end{claim}
+\begin{proof}
+  By case analysis on the rewriting rule.
+\end{proof}
+
+ Notice that $\llbracket C\rrbracket$ has a labeling with root $e$: we label the new initial state by $e$, the new sink by $1$ and label all the other states using the labeling of $C$.~\\
+
+Since $\llbracket C\rrbracket \twoheadrightarrow^* N(f)$, and  by repeated application of the claim, we deduce that $N(f)$ has a labeling with root $e$.  Thus, we have that $e\equiv (f\cdot 1)\equiv f$.
+\end{proof}
+
+\section{Reducing traps}
+
+\begin{definition} Let $q$ be a state of a chart $C$.
+  The $q$-\emph{trap} of a chart $C$ is the sub-chart of $C$ whose initial state is $q$, whose set of states is the set of states reachable from $q$ and whose final states are the final states of $C$ reachable from $q$.
+\end{definition}
 
 \section{Contracting Milner charts}
 
-We generalize the usual notion of bisimulation quotient of an LTS to the notion of a quotient relative to a continuation $C$.
-Unlike the standard quotient, which collapses bisimilar states, 
-a $C$-quotient may identify states in a way that ensures no two states of $D'$ remain bisimilar once composed with $C$.
-
-\begin{definition}
-Let $C$ and $D$ be  two charts.  A chart $Q$ is a \emph{ $C$-quotient} of $D$ if it satisfies the following conditions:
-\begin{itemize}
-  \item $D \cdot C \sim Q \cdot C$,
-  \item no two distinct states of $Q$ are bisimilar in $Q \cdot C$.
-\end{itemize}
-\end{definition}
-
-\begin{definition} A quotient of a chart $C$ is a $M(1)$-quotient of $C$.
-\end{definition}
- 
-\begin{definition}
- A \emph{trap} in a chart is a set of states that is closed under the transition relation.
- \end{definition}
-
-\section{Contraction of a chart}
-
-\begin{definition}
-    Let $C=(Q,\Sigma,\Delta,i,F)$ be a chart. If $q$ is a state of $C$, we denote by $[q]$ the equivalence class of
-     $q$ under the bisimulation relation. 
-     The \emph{contraction} of a chart $C$ is the chart over $\Sigma$ whose:
-     \begin{itemize}
-         \item set of states is $\{ [q] \mid q \in Q \}$,
-         \item initial state is $[i]$,
-         \item set of final states is $\{ [f] \mid f \in F \}$,
-         \item transition relation  is $\{ ([p], a, [q]) \mid (p,a,q) \in \Delta\}.$
-     \end{itemize}
-    \end{definition}
-
-    \begin{remark}
-        Bisimilar charts have the same contraction. ~\label{remark:bisimilar-have-same-contraction}
-    \end{remark}
-
-    \begin{proposition}
-        The contraction of a Milner chart is reductible. ~\label{prop:contraction-of-Milner-is-reductible}
-    \end{proposition}
-
-\begin{proposition}
-     Let $C$ and $D$ be two charts such that $C$ is the contraction of $D$.
-    If  $(E,e)$ is a decoration of $C$, then there is a decoration $(E', e)$ of $D$. ~\label{prop:expansion-preserves-decorability}
-\end{proposition}
 
 \section{Proof of the Main Theorem}
 \begin{theorem} For every regular expressions $e$ and $f$, we have:
