@@ -1119,10 +1119,9 @@ For every regular expressions $e$, we let ${N}(e)$ be the chart:
 A \emph{labeling} of a chart $(Q, \Sigma^*, \Delta, I, F)$ is a function 
 $\ell:Q \mapsto Re(\Sigma^*)$ satisfying, for every state $p\in Q$
 $$\ell(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + f(\ell(p)).$$
-
 The \emph{root} of the labeling is the label of the initial state.
 
- We say that a chart  is \emph{labelable} if it admits a labeling.
+% We say that a chart  is \emph{labelable} if it admits a labeling.
 \end{definition}
 
 
@@ -1138,39 +1137,48 @@ The \emph{root} of the labeling is the label of the initial state.
 \end{example}
 
 
-\subsection{Milner charts are labelable}
-
-\begin{proposition} For every expression $e$, $M(e)$ has a labeling with root $e$.~\label{prop:milner-chart-is-decorable}
-~\label{prop:Milner-is-decorable}\end{proposition}
-
-% \subsection{Reducible implies labelable}
-% \begin{proposition}
-%     If a chart is reducible, then it is labelable. ~\label{prop:reducible-implies-decorable}
-% \end{proposition}
+%\subsection{Milner charts are labelable}
 
 
 
-% \begin{definition}
-% We say that a cycle is final if all its labels are final. A chart is safe if it has no final cycle.
-% \end{definition}
+ \subsection{Reducible implies labelable}
+ \begin{proposition}
+     If a chart is reducible to $N(e)$, for some expression $e$, then it has a labelling with root $e$. ~\label{prop:reducible-implies-decorable}
+ \end{proposition}
 
-% \begin{lemma} Safe charts are closed under reduction.\end{lemma}
-%     \begin{lemma}
-%     Let $C$ and $D$ be two charts such that $C \twoheadrightarrow D$. If $D$ is labelable,
-%      then so is $C$.  
-%      \end{lemma}
+
+\begin{proof} We show that labelability is preserved by the converse of $\twoheadrightarrow$.
+ 
+     \begin{claim}
+     Let $C$ and $D$ be two charts such that $C \twoheadrightarrow D$. If $D$ has a
+      labeling with root $e$,  then so does $C$.  
+      \end{claim}
+      \begin{proof}
+        By case analysis on the applied rewriting rule.
+      \end{proof}
+
+      We conclude by noticing that $N(e)$ has a labeling with root $e$.
+    \end{proof}
+
+\begin{corollary} For every expression $e$, $M(e)$ has a labeling with root $e$.~\label{prop:milner-chart-is-decorable}
+~\label{prop:Milner-is-decorable}\end{corollary}
 
      \subsection{Two decorations of a chart}
 
-  
+  \begin{definition}
+ We say that a cycle is \emph{final} if all its labels are final. A chart is \emph{safe} if it has no final cycle.
+ \end{definition}
+
+ \begin{remark} Note that charts over the alphabet $\Sigma$ are safe.
+ \end{remark}
+ \begin{lemma} Safe charts are closed under reduction.\end{lemma}
 
 \begin{proposition}
-   If a reducible chart has two labelings with roots $e$ and $e'$, then $e \equiv e'$.~\label{prop:two-decorations-implies-equiv}
+   If a reducible safe chart has two labelings with roots $e$ and $e'$, 
+   then $e \equiv e'$.~\label{prop:two-decorations-implies-equiv}
 \end{proposition}
 \begin{proof} Let $C$ be a chart reducible to $N(f)$. We show that if $C$ has a labelling with root $e$, then $e\equiv f$.  This is enough to conclude the proposition. 
   
- 
-
   \begin{claim} Let $S$ and $T$ be two charts such that $S \twoheadrightarrow T$. 
     If $S$ has a labelling, then $T$ has also a labelling with the same root.
   \end{claim}
@@ -1183,6 +1191,11 @@ The \emph{root} of the labeling is the label of the initial state.
 Since $\llbracket C\rrbracket \twoheadrightarrow^* N(f)$, and  by repeated application of the claim, we deduce that $N(f)$ has a labeling with root $e$.  Thus, we have that $e\equiv (f\cdot 1)\equiv f$.
 \end{proof}
 
+Combining Proposition~\ref{prop:reducible-implies-decorable} with Proposition~\ref{prop:two-decorations-implies-equiv}, 
+we conclude to a sort of confluence property:
+\begin{corollary} If a chart reduces to $N(e)$ and to $N(f)$, for some expressions $e$ and 
+  $f$, then $e\equiv f$.
+\end{corollary}
 \section{Reducing traps}
 
 \begin{definition} Let $q$ be a state of a chart $C$.
@@ -1197,25 +1210,12 @@ Since $\llbracket C\rrbracket \twoheadrightarrow^* N(f)$, and  by repeated appli
      $$M(e)\sim M(f) \quad \Longrightarrow \quad e \equiv f.$$
 \end{theorem}
 \begin{proof}
-    Let $e$ and $f$ be two regular expressions such that $M(e)\sim M(f)$. \\
-    
-    By Proposition~\ref{prop:milner-chart-is-decorable}, the Milner charts $M(e)$ and $M(f)$ are decorable by decorations
-     $(E,e)$ and $(F,f)$ respectively.\\
+    Let $e$ and $f$ be two regular expressions such that $M(e)\sim M(f)$. 
 
-    Let $C$ be the contraction of $M(e)$, which is also the contraction of $M(f)$ by Remark~\ref{remark:bisimilar-have-same-contraction}.
-    By Proposition~\ref{prop:contraction-of-Milner-is-reductible}, $C$ is reducible, 
-    hence it is decorable by a decoration $(G,g)$ by Proposition~\ref{prop:reducible-implies-decorable}.\\
-
-
-    By proposition~\ref{prop:milner-chart-is-decorable}, $M(e)$ is decorable by a decoration $(E',g)$ and $M(f)$ by a decoration $(F',g)$.\\
-
-    We have exhibited two decorations $(E,e)$ and $(E',g)$ for  $M(e)$. Hence $e\equiv g$. Similarly we have 
-    $f\equiv g$. We conclude that $e\equiv f$.
 \end{proof}
     \begin{thebibliography}{9}
 \bibitem{Antimirov1996}
 V. Antimirov, ``Partial derivatives of regular expressions and finite automaton constructions,'' \emph{Theoretical Computer Science}, 155(2): 291--319, 1996.
 \end{thebibliography}
-
 
 \end{document}
