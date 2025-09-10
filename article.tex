@@ -785,6 +785,20 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
             \draw[arr] (p2) to node[right] {$f$} (q2);  
         \end{tikzpicture}~\\
             \end{center}
+          \item \textbf{Unproductivity elimination:}~\\
+            \begin{center}
+        \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+            % Left side (before)
+            \node[circ] (p1) at (0,0) {};
+            \node[state] (q1) at (0,-1.8) {};   
+            \draw[arr] (p1) to node[right] {$e$} (q1);
+            % Arrow between rules
+            \node (i) at (2,-0.9) {$\twoheadrightarrow_{\mathsf{u}}$};
+            %\node[below=1.2cm of i] {Zero rule};
+            % Right side (after)
+            \node[state] (q2) at (4,-1.8) {};
+        \end{tikzpicture}~\\
+      \end{center}
     \item \textbf{Factorization} :\\
     \begin{center}
           \begin{tikzpicture}[scale=1.0, every node/.style={transform shape}]
@@ -829,16 +843,16 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
     \end{itemize}
     We let $\twoheadrightarrow$ denote the union of all these rewriting rules.
     \end{definition}
-    \begin{remark}
-   If in a chart, some states $q_1,\dots, q_m $ have a common subset
-     $S$ of derivatives, then the rewriting rule 
-    $\twoheadrightarrow_{\mathsf{f}}$:
-    \begin{itemize}
-    \item creates a fresh state $q$ such that $D(q)=S$,
-    \item removes $S$ from the derivatives of $q_i$ and adds $(1,q)$, for $i\in\{1,\dots,m\}$.
-    \end{itemize}
-    %We call the states $q_1,\dots, q_n$ \emph{partners} and $q$ their \emph{factor}.
-    \end{remark}
+  %   \begin{remark}
+  %  If in a chart, some states $q_1,\dots, q_m $ have a common subset
+  %    $S$ of derivatives, then the rewriting rule 
+  %   $\twoheadrightarrow_{\mathsf{f}}$:
+  %   \begin{itemize}
+  %   \item creates a fresh state $q$ such that $D(q)=S$,
+  %   \item removes $S$ from the derivatives of $q_i$ and adds $(1,q)$, for $i\in\{1,\dots,m\}$.
+  %   \end{itemize}
+  %   %We call the states $q_1,\dots, q_n$ \emph{partners} and $q$ their \emph{factor}.
+  %   \end{remark}
     % We denote by:
     % \begin{itemize}
     %     \item $\twoheadrightarrow$ the union of the above rewriting rules.
@@ -992,11 +1006,11 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
         %             The factorization rule introduces a new state.}   \label{fig:chart-rewriting-rules}
         % \end{figure}
 
-~\\
-As in the classical state-elimination algorithm, we apply the rewriting system only to charts that are rooted and terminal (i.e., with a unique sink final state). If a chart does not meet these conditions, we first normalise it by applying a \emph{root extension} and/or a \emph{sink completion}, defined below.
+
+% As in the classical state-elimination algorithm, we apply the rewriting system only to charts that are rooted and terminal (i.e., with a unique sink final state). If a chart does not meet these conditions, we first normalise it by applying a \emph{root extension} and/or a \emph{sink completion}, defined below.
 
 \begin{definition}
-     \emph{Root extension} is the operation of adding a fresh state to a chart which becomes its new inital state,
+     \emph{Root extension} is the operation of adding, if the chart is not rooted, a fresh state which becomes its new initial state,
      the adding a $1$-labelled transition from this state to the old initial state.
 
     \emph{Sink completion} is the operation of adding a fresh state to a chart, which becomes its unique final state, 
@@ -1019,30 +1033,27 @@ For every regular expressions $e$, we let ${N}(e)$ be the chart:
     ]
 
             % First chart
-            \node[circ] (p1) at (0,0) {};
+            \node[state] (p1) at (0,0) {};
             \node[final] (f1) at (2,0) {};
             \draw[arr] (p1) to node[above] {$e$} (f1);
             % Incoming and outgoing arrows (horizontal)
             \draw[arr] ([xshift=-5mm]p1.west) to (p1);
         \end{tikzpicture}
     \end{center}
+We say that a chart $M$ is \emph{reducible} to an expression $e$, and write $M\twoheadrightarrow^* e$ if:
+     $$\llbracket M\rrbracket \twoheadrightarrow^* N(e).$$
 \end{definition}
 
 \begin{definition}
-    A chart $C$ is \emph{reducible} if there is a regular expression $e$ where:
-     $$\llbracket C\rrbracket \twoheadrightarrow^* N(e).$$
-\end{definition}
-
-\begin{definition}
-    A regular expression is \emph{safe} if in every sub-expression of the form $f^*$, we have $f\Uparrow$.
+    A regular expression is \emph{star-safe} if in every sub-expression of the form $f^*$, we have $f\Uparrow$.
 \end{definition}
 
 \begin{proposition}
-  Every expression is equivalent to a safe one.
+  Every expression is equivalent to a star-safe one.
     ~\label{prop:every-expression-is-equivalent-to-a-safe-one}
 \end{proposition}
 
-\begin{proposition} For every safe expression $e$, $M(e)$ is reducible.
+\begin{proposition} For every star-safe expression $e$, $M(e)$ is reducible to $e$.
     ~\label{prop:Milner-is-reducible}
 \end{proposition}
 
@@ -1108,18 +1119,19 @@ For every regular expressions $e$, we let ${N}(e)$ be the chart:
 %   from the set of final states if it belongs to it.
 % \end{definition}
 
-\begin{lemma}
-  If $M$ and $N$ are two rooted reducible charts, then $M+N$ and $M \cdot N$ are also reducible. 
-  If moreover $M \Uparrow$, then $M^*$ is reducible.  
+\begin{lemma} Let $M$ and $N$ be two rooted charts. We have:
+  $$\begin{array}{rcl}
+    M\twoheadrightarrow^* e\ \text{and}\ N\twoheadrightarrow^* f & \Longrightarrow&  (M+N) \twoheadrightarrow^* (e+f)\ \text{ and }\ (M \cdot N) \twoheadrightarrow^* (e \cdot f)\\[6pt]
+    M \Uparrow\ \text{and}\ M \twoheadrightarrow^* e & \Longrightarrow&  M^* \twoheadrightarrow^* e^*.
+  \end{array}$$
 \end{lemma}
 
 \section{Labeling Charts}
 
-\begin{definition}
-A \emph{labeling} of a chart $(Q, \Sigma^*, \Delta, I, F)$ is a function 
-$\ell:Q \mapsto Re(\Sigma^*)$ satisfying, for every state $p\in Q$
+\begin{definition} Let $M$ be a chart whith a transition relation  $\Delta$. A \emph{labeling} of $M$ is a function 
+$\ell:Q \mapsto Re(\Sigma^*)$ satisfying, for every state $p$:
 $$\ell(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + f(\ell(p)).$$
-The \emph{root} of the labeling is the label of the initial state.
+The \emph{root} of the labeling is the label of the initial state. We write $M\models e$ if there is a labeling of $M$ with root $e$.
 
 % We say that a chart  is \emph{labelable} if it admits a labeling.
 \end{definition}
@@ -1140,61 +1152,68 @@ The \emph{root} of the labeling is the label of the initial state.
 %\subsection{Milner charts are labelable}
 
 
-
  \subsection{Reducible implies labelable}
- \begin{proposition}
-     If a chart is reducible to $N(e)$, for some expression $e$, then it has a labelling with root $e$. ~\label{prop:reducible-implies-decorable}
+If a chart is reducible to an expression $e$, then it is labelable with root $e$.
+ \begin{proposition}~\label{prop:reducible-implies-decorable}
+    For every chart $M$ and expression $e$, we have:
+    $$ M\twoheadrightarrow^* e \quad \Longrightarrow \quad M \models e.$$
  \end{proposition}
-
-
-\begin{proof} We show that labelability is preserved by the converse of $\twoheadrightarrow$.
- 
+\begin{proof} We show first that labelability is preserved by the converse of $\twoheadrightarrow$:
      \begin{claim}
-     Let $C$ and $D$ be two charts such that $C \twoheadrightarrow D$. If $D$ has a
-      labeling with root $e$,  then so does $C$.  
+     Let $M$ and $N$ be two charts. We have:
+     $$ M\twoheadrightarrow N \ \text{ and }\ N \models e \quad \Longrightarrow \quad M \models e. $$
       \end{claim}
       \begin{proof}
         By case analysis on the applied rewriting rule.
       \end{proof}
-
-      We conclude by noticing that $N(e)$ has a labeling with root $e$.
+We conclude by noticing that the chart $N(e)\models e$.
     \end{proof}
 
-\begin{corollary} For every expression $e$, $M(e)$ has a labeling with root $e$.~\label{prop:milner-chart-is-decorable}
+\begin{corollary} For every expression $e$, $M(e)\models e$.~\label{prop:milner-chart-is-decorable}
 ~\label{prop:Milner-is-decorable}\end{corollary}
 
-     \subsection{Two decorations of a chart}
+\subsection{Charts with bisimilar roots are bisimilar}
+
+\begin{proposition} Let $M$ and $N$ be charts and $e$ and $f$ expressions. We have:
+  $$ M\models e,\ \ N\models f \ \text{ and }\ e\equiv f \quad \Longrightarrow\quad M\sim N.$$
+\end{proposition}
+\begin{proof} let $\ell$ and $\ell'$ be labelings of $M$ and $N$ with roots $e$ and $f$ respectively.  We show that the relation $R$ between the states of $M$ and $N$ defined as follows:
+  $$ (p,q)\in R \quad \Leftrightarrow \quad \ell(p) \equiv \ell'(q), $$
+  is a bisimulation between $M$ and $N$.
+\end{proof}
+\begin{corollary} If a chart $M$ has a labeling with root $e$, then:
+  $$M\models e \quad \Longrightarrow\quad M\sim M(e).$$ 
+\end{corollary}
+
+\subsection{Confluence of the rewriting system}
 
   \begin{definition}
- We say that a cycle is \emph{final} if all its labels are final. A chart is \emph{safe} if it has no final cycle.
+ We say that a cycle is \emph{final} if all its labels are final. A chart is \emph{safe for reduction} if it has no final cycle.
  \end{definition}
 
- \begin{remark} Note that charts over the alphabet $\Sigma$ are safe.
+ \begin{remark} Note that charts over the alphabet $\Sigma$ are safe for reduction.
  \end{remark}
- \begin{lemma} Safe charts are closed under reduction.\end{lemma}
+ \begin{lemma} Reduction safety is preserved by reduction.\end{lemma}
 
-\begin{proposition}
-   If a reducible safe chart has two labelings with roots $e$ and $e'$, 
-   then $e \equiv e'$.~\label{prop:two-decorations-implies-equiv}
+\begin{proposition} Let $M$ be a chart safe for reduction. We have:
+  $$ M \models e\ \text{ and }\  M\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f,$$ for every expressions $e$ and $f$.
 \end{proposition}
-\begin{proof} Let $C$ be a chart reducible to $N(f)$. We show that if $C$ has a labelling with root $e$, then $e\equiv f$.  This is enough to conclude the proposition. 
-  
-  \begin{claim} Let $S$ and $T$ be two charts such that $S \twoheadrightarrow T$. 
-    If $S$ has a labelling, then $T$ has also a labelling with the same root.
+\begin{proof} We show that reduction preserves the existence of a labeling with the same root.
+  \begin{claim} Let $M$ and $N$ be two charts safe for reduction. We have:
+    $$ M \twoheadrightarrow N \ \text{ and }\ M \models e \quad \Longrightarrow\quad N \models e,$$ for every expression $e$.
   \end{claim}
 \begin{proof}
   By case analysis on the rewriting rule.
 \end{proof}
 
- Notice that $\llbracket C\rrbracket$ has a labeling with root $e$: we label the new initial state by $e$, the new sink by $1$ and label all the other states using the labeling of $C$.~\\
+%  Notice that $\llbracket C\rrbracket$ has a labeling with root $e$: we label the new initial state by $e$, the new sink by $1$ and label all the other states using the labeling of $C$.~\\
 
-Since $\llbracket C\rrbracket \twoheadrightarrow^* N(f)$, and  by repeated application of the claim, we deduce that $N(f)$ has a labeling with root $e$.  Thus, we have that $e\equiv (f\cdot 1)\equiv f$.
+% Since $\llbracket C\rrbracket \twoheadrightarrow^* N(f)$, and  by repeated application of the claim, we deduce that $N(f)$ has a labeling with root $e$.  Thus, we have that $e\equiv (f\cdot 1)\equiv f$.
 \end{proof}
 
-Combining Proposition~\ref{prop:reducible-implies-decorable} with Proposition~\ref{prop:two-decorations-implies-equiv}, 
-we conclude to a sort of confluence property:
-\begin{corollary} If a chart reduces to $N(e)$ and to $N(f)$, for some expressions $e$ and 
-  $f$, then $e\equiv f$.
+As a consequence, we show that a chart is reducible to two expressions, then these expressions are equivalent.
+\begin{corollary} Let $M$ be a chart, and $e$ and $f$ be two expressions. We have:
+  $$ M \twoheadrightarrow^* e\ \text{ and }\  M\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f.$$
 \end{corollary}
 \section{Reducing traps}
 
@@ -1202,16 +1221,15 @@ we conclude to a sort of confluence property:
   The $q$-\emph{trap} of a chart $C$ is the sub-chart of $C$ whose initial state is $q$, whose set of states is the set of states reachable from $q$ and whose final states are the final states of $C$ reachable from $q$.
 \end{definition}
 
-\section{Contracting Milner charts}
+\section{Set initial charts}
 
 
 \section{Proof of the Main Theorem}
 \begin{theorem} For every regular expressions $e$ and $f$, we have:
-     $$M(e)\sim M(f) \quad \Longrightarrow \quad e \equiv f.$$
+     $$e\sim f \quad \Longrightarrow \quad e \equiv f.$$
 \end{theorem}
 \begin{proof}
-    Let $e$ and $f$ be two regular expressions such that $M(e)\sim M(f)$. 
-
+    Let $e$ and $f$ be two regular expressions such that $M(e)\sim M(f)$.
 \end{proof}
     \begin{thebibliography}{9}
 \bibitem{Antimirov1996}
