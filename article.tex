@@ -71,6 +71,33 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
   lab/.style={font=\scriptsize,inner sep=1pt,fill=white,fill opacity=.9,text opacity=1},
   ruletitle/.style={font=\bfseries\scriptsize}
 }
+\usepackage{scalerel}
+
+% Demi-cercles creux
+\newcommand{\lsemicirc}[1]{%
+  \mathopen{\scalerel*{%
+    \tikz[baseline=-0.5ex]{
+      \draw[line width=0.4pt]
+        (0,0.6ex) -- (0.1ex,0.6ex)
+        arc (90:270:0.6ex)
+        -- (0,-0.6ex) -- (0.1ex,-0.6ex);
+    }}{#1}}}
+
+\newcommand{\rsemicirc}[1]{%
+  \mathclose{\scalerel*{%
+    \tikz[baseline=-0.5ex]{
+      \draw[line width=0.4pt]
+        (0,0.6ex) -- (-0.1ex,0.6ex)
+        arc (90:-90:0.6ex)
+        -- (0,-0.6ex) -- (-0.1ex,-0.6ex);
+    }}{#1}}}
+% Demi-cercles pleins
+\newcommand{\lsemicircfilled}[1]{\mathopen{\scalerel*{\tikz[baseline=-0.5ex]{\fill (0,0) arc (90:270:.6ex);}}{#1}}}
+\newcommand{\rsemicircfilled}[1]{\mathclose{\scalerel*{\tikz[baseline=-0.5ex]{\fill (0,0) arc (90:-90:.6ex);}}{#1}}}
+
+% Raccourcis type [A]
+\newcommand{\quotient}[1]{\llbracket#1\rrbracket}          % creux
+\newcommand{\quasiquotient}[1]{\lsemicircfilled{#1}#1\rsemicircfilled{#1}} % plein
 
 
 
@@ -112,7 +139,7 @@ e ::= 0 \mid 1 \mid a \mid e + e \mid e\cdot e \mid e^* \qquad (a \in \Sigma)
 \theoremstyle{definition}
 \newtheorem{notation}[definition]{Notation}
 
-\begin{notation}
+\begin{notation} 
 We sometimes write $ef$ for $e \cdot f$. The precedence of operations is as usual: star, then concatenation, then union. For instance, $e+f^*g$ means $e+(f^*\cdot g)$.
 \end{notation}
 \vspace{1em}
@@ -583,8 +610,9 @@ For every regular expression $e$, $M(e)$ is rooted.
 \begin{definition}
 Let $C$ and $D$ be two charts with state sets $Q$ and $Q'$ and respectively. A relation $R\subseteq Q\times Q'$ is a \emph{bisimulation} between $C$ and $D$ if:
 \begin{itemize}
-    \item $\forall (p,q)\in R$, $p$ is final $\; \Leftrightarrow\;$ $q$ is final,
-    \item $\xlongleftarrow{a}_{C}\cdot R\ =\ R \cdot \xlongleftarrow{a}_{D}$ $\quad$ and $\quad$ $ \xlongrightarrow{a}_{C} \cdot R\;=\;R \cdot \xlongrightarrow{a}_{D}$.
+    \item $(p,q)\in R \Rightarrow\chi_1(p)=\chi_1(q)$, 
+    \item $\xlongleftarrow{a}_{C}\cdot R\ =\ R \cdot \xlongleftarrow{a}_{D}$ and
+    \item $\xlongrightarrow{a}_{C} \cdot R\;=\;R \cdot \xlongrightarrow{a}_{D}$.
 \end{itemize}
 
 Let $(p,q)\in C\times D$. We say that $p$ and $q$ are \emph{bisimilar}, and write $p\sim q$, if $(p,q)\in R$ for some bisimilation $R$ between $C$  and $D$.\\
@@ -670,32 +698,31 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
 
 
 
-    \begin{definition} We consider the following rewriting rules,  which transform charts over $\Sigma^*$ into charts
+    \begin{definition} We consider the rewriting rules of Figure~\ref{},  which transform charts over $\Sigma^*$ into charts
          over
          $\Sigma^*$. They are to be interpreted as follows:
               squares represent states for which some transitions are depicted but not necessarily all of them.
                Circles represent states with all transitions explicitly shown.
-                    Circles are distinct from surrounding nodes, unlike squares. 
-
-         \begin{itemize}
-          \item \textbf{Zero rule:}~\\
-            \begin{center}
-        \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+                    Circles are distinct from surrounding nodes, unlike squares, and they are not initial nor final.   We let $\twoheadrightarrow$ denote the union of all these rewriting rules.
+                    
+                    \begin{figure}[h!]
+                      \begin{center} 
+                        \fboxsep=10pt  % padding between content and box
+\fboxrule=1pt   \fbox{%
+\begin{tabular}{ccc}
+\textbf{Zero} & \quad & \textbf{Parallel merge} \\[20pt]
+  \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
             % Left side (before)
             \node[state] (p1) at (0,0) {};
             \node[state] (q1) at (0,-1.8) {};      
             % Arrow between rules
-            \node (i) at (2,-0.9) {$\twoheadrightarrow_{\mathsf{0}}$};
+            \node (i) at (1.5,-0.9) {$\twoheadrightarrow_{\mathsf{0}}$};
             %\node[below=1.2cm of i] {Zero rule};
             % Right side (after)
-            \node[state] (p2) at (4,0) {};
-            \node[state] (q2) at (4,-1.8) {};
+            \node[state] (p2) at (3,0) {};
+            \node[state] (q2) at (3,-1.8) {};
             \draw[arr] (p2) to node[right] {$0$} (q2);  
-        \end{tikzpicture}~\\
-            \end{center}
-            \item \textbf{Parallel transitions merge:}~\\
-            \begin{center}
-                    \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+        \end{tikzpicture} &  \quad &\begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
             % Left side (before)
             \node[state] (p1) at (0,0) {};
             \node[state] (q1) at (0,-1.8) {};
@@ -703,45 +730,16 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
             \draw[arr] (p1) to[bend right=20] node[left]  {$e$} (q1);
 
             % Arrow between rules
-            \node (i) at (2,-0.9) {$\twoheadrightarrow_{\mathsf{p}}$};
+            \node (i) at (1.5,-0.9) {$\twoheadrightarrow_{\mathsf{p}}$};
            % \node[below=1.2cm of i] {Transitions fusion};
         
             % Right side (after)
-            \node[state] (p2) at (4,0) {};
-            \node[state] (q2) at (4,-1.8) {};
+            \node[state] (p2) at (3,0) {};
+            \node[state] (q2) at (3,-1.8) {};
             \draw[arr] (p2) to node[right] {$e+f$} (q2);
-        \end{tikzpicture}~\\
-            \end{center}
-    % \item \textbf{Loopless state elimination} (the circle state is not initial, nor final):~\\
-    % \begin{center}
-    %  \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
-    %         % Left side (before)
-    %         \node[state] (p1) at (4,0) {};
-    %         \node (d1) at (4.5,0) {$\dots$};
-    %         \node[state] (q1) at (5,0) {};
-    %         \node[circ] (r1) at (4.5,-1.2) {};
-    %         \node[state] (s1) at (4.5,-2.4) {};
-    %         \draw[arr] (p1) to node[left] {$e_1$} (r1);
-    %         \draw[arr] (q1) to node[right] {$e_n$} (r1);
-    %         \draw[arr] (r1) to node[right] {$f$} (s1);
-    %         \node (d1') at (4.5,-.6) {\tiny $\dots$};
-    %         % Arrow between rules
-    %         \node (i) at (6.5,-1.2) {$\twoheadrightarrow_{\mathsf{d}}$};
-    %         %\node[below=2cm of i] {Loopless state elimination};
-
-    %         % Right side (after)
-    %         \pgfmathsetmacro{\shift}{8}
-    %         \node[state] (p2) at (\shift,0) {};
-    %         \node[state] (q2) at (\shift+1,0) {};
-    %         \node[state] (s2) at (\shift+0.5,-2.4) {};
-    %         \draw[arr] (p2) to node[left] {$e_1f$} (s2);
-    %         \draw[arr] (q2) to node[right] {$e_nf$} (s2);
-    %         \node (d2) at (\shift+0.5,0) {$\dots$};
-    %         \node (d2') at (\shift+0.5,-1.2) {{\tiny $\dots$}};
-    %     \end{tikzpicture}\\
-    % \end{center}
-       \item \textbf{State elimination} (the circle state is not initial, nor final):\\
-        \begin{center}\begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+        \end{tikzpicture}\\[25pt]
+  \textbf{State elimination}  &  & \textbf{Renaming} \\[20pt]
+  \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
             % Left side (before)
             \node[state] (p1) at (6,0) {};
             \node (d1) at (6.5,0) {$\dots$};
@@ -754,11 +752,11 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
             \draw[arr] (r1) to[loop left, looseness=20, out=-130, in=130] node[left] {$g$} (r1);
             \node (d1') at (6.5,-.6) {\tiny $\dots$};
             % Arrow between rules
-            \node (i) at (9,-1.2) {$\twoheadrightarrow_\mathsf{l}$};
+            \node (i) at (8,-1.2) {$\twoheadrightarrow_\mathsf{l}$};
             %\node[below=2cm of i] {Safe loop elimination ($g\Uparrow$ only)};
 
             % Right side (after)
-            \pgfmathsetmacro{\shift}{11}
+            \pgfmathsetmacro{\shift}{9.5}
             \node[state] (p2) at (\shift,0) {};
             \node[state] (q2) at (\shift+1,0) {};
             \node[state] (s2) at (\shift+0.5,-2.4) {};
@@ -766,42 +764,32 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
             \draw[arr] (q2) to node[right] {$e_ng^*f$} (s2);
             \node (d2) at (\shift+0.5,0) {$\dots$};
             \node (d2') at (\shift+0.5,-1.2) {{\tiny $\dots$}};
-        \end{tikzpicture}\\
-    \end{center}
-    \item \textbf{Renaming} (when $e \equiv f$): \\
-    \begin{center}
-        \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+        \end{tikzpicture}&&     \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
             % Left side (before)
             \node[state] (p1) at (0,0) {};
             \node[state] (q1) at (0,-1.8) {};  
 
             \draw[arr] (p1) to node[right] {$e$} (q1);
             % Arrow between rules
-            \node (i) at (2,-0.9) {$\twoheadrightarrow_{\mathsf{r}}$};
+            \node (i) at (1.5,-0.9) {$\twoheadrightarrow_{\mathsf{r}}$};
             %\node[below=1.2cm of i] {Renaming};
             % Right side (after)
-            \node[state] (p2) at (4,0) {};
-            \node[state] (q2) at (4,-1.8) {};
+            \node[state] (p2) at (3,0) {};
+            \node[state] (q2) at (3,-1.8) {};
             \draw[arr] (p2) to node[right] {$f$} (q2);  
-        \end{tikzpicture}~\\
-            \end{center}
-          \item \textbf{Unproductivity elimination:}~\\
-            \begin{center}
-        \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+        \end{tikzpicture}\\[25pt]
+          \textbf{Unproductivity elimination}  & &\textbf{Factorization} \\[20pt]
+            \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
             % Left side (before)
             \node[circ] (p1) at (0,0) {};
             \node[state] (q1) at (0,-1.8) {};   
             \draw[arr] (p1) to node[right] {$e$} (q1);
             % Arrow between rules
-            \node (i) at (2,-0.9) {$\twoheadrightarrow_{\mathsf{u}}$};
+            \node (i) at (1.5,-0.9) {$\twoheadrightarrow_{\mathsf{u}}$};
             %\node[below=1.2cm of i] {Zero rule};
             % Right side (after)
-            \node[state] (q2) at (4,-1.8) {};
-        \end{tikzpicture}~\\
-      \end{center}
-    \item \textbf{Factorization} :\\
-    \begin{center}
-          \begin{tikzpicture}[scale=1.0, every node/.style={transform shape}]
+            \node[state] (q2) at (3,-1.8) {};
+        \end{tikzpicture}&&           \begin{tikzpicture}[scale=1.0, every node/.style={transform shape}]
             % Left side (before)
 
             \begin{scope}[shift={(-.5,0)}]
@@ -820,12 +808,12 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
             \draw[arr] (pn) to node[right, near start] {$e_n$} (q2);
             \end{scope}
             % Arrow between rules
-            \node (i) at (3.6,-1.4) {$\twoheadrightarrow_{\mathsf{f}}$};
+            \node (i) at (3.2,-1.4) {$\twoheadrightarrow_{\mathsf{f}}$};
            % \node[below=1.4cm of i] {Factorization};
 
             % Right side (after)
             % \pgfmathsetmacro{\shift}{.5}
-            \begin{scope}[shift={(5,0)}]
+            \begin{scope}[shift={(3.5,0)}]
                 \node[state] (sp1) at (.5,0) {};
                 \node[state] (spn) at (2.5,0) {};
                 \node[state] (sq1) at (0.8,-2.8) {};
@@ -839,9 +827,11 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
             \draw[arr] (spn) to node[right, below ] {$1$} (c);
             \end{scope}
         \end{tikzpicture}\\
-    \end{center}
-    \end{itemize}
-    We let $\twoheadrightarrow$ denote the union of all these rewriting rules.
+\end{tabular}}
+\end{center}~\\[15pt]
+     \end{figure}
+
+  
     \end{definition}
   %   \begin{remark}
   %  If in a chart, some states $q_1,\dots, q_m $ have a common subset
@@ -853,171 +843,18 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
   %   \end{itemize}
   %   %We call the states $q_1,\dots, q_n$ \emph{partners} and $q$ their \emph{factor}.
   %   \end{remark}
-    % We denote by:
-    % \begin{itemize}
-    %     \item $\twoheadrightarrow$ the union of the above rewriting rules.
-    %     \item $\twoheadrightarrow_{\mathsf{c}}$ the union of all these rewriting rules except the 
-    %     factorisation rule.
-    %     \item $\twoheadrightarrow_{\mathsf{s}}$ the factorization rule where the partners are pairwise
-    %     co-accessible.\footnote{Voici un moyen mnemothéchnique pour se souvenir des differentes noms de règles:
-    %     $\mathsf{p}$ stands for parallel transitions fusion, $\mathsf{d}$ stands for 
-    %     distribution (this rule is very closed to the distributivity rule as we will see later), 
-    %     $\mathsf{l}$ stands for loop elimination, $\mathsf{f}$ stands for factorization, $\mathsf{c}$ stands for classical rules and $\mathsf{s}$ stands for strong factorization rule.}
-    % \end{itemize}
-   
-    % 
-        %          A chart  \emph{reducible} if it can be rewritten by $\twoheadrightarrow^*$ until no 
-        %          inner state remains.
-        %          
-        %          into a chart of the
-        %          form:
-        % \begin{center}
-        %     \begin{tikzpicture}[
-        %   >=Latex,
-        %   state/.style={circle, draw, inner sep=1.6pt},
-        %   ghost/.style={circle, draw, inner sep=1.2pt, gray!60},
-        %   final/.style={state, double, double distance=1pt},
-        %   lab/.style={font=\small},
-        %   every edge quotes/.style={auto, text=black, font=\small}
-        % ]
-        %
-        %         % First chart
-        %         \node[circ] (p1) at (0,0) {};
-        %         \node[final] (f1) at (2,0) {};
-        %         \draw[arr] (p1) to node[above] {$e$} (f1);
-        %         % Incoming and outgoing arrows (horizontal)
-        %         \draw[arr] ([xshift=-5mm]p1.west) to (p1);
-        %     \end{tikzpicture}
-        % \end{center}
-     
-        
-        %         \begin{figure}[h!]
-        %     \begin{flushleft}
-        %         \scalebox{1}{ 
-        %     \begin{tabular}[t]{@{}c@{\hspace{1.4cm}}c@{}}
-        %         \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
-        %             % Left side (before)
-        %             \node[state] (p1) at (0,0) {};
-        %             \node[state] (q1) at (0,-1.8) {};
-        %             \draw[arr] (p1) to[bend left=20] node[right] {$f$} (q1);
-        %             \draw[arr] (p1) to[bend right=20] node[left]  {$e$} (q1);
-        %
-        %             % Arrow between rules
-        %             \node (i) at (1,-0.9) {$\twoheadrightarrow$};
-        %             \node[below=1.2cm of i] {Transitions fusion};
-        %         
-        %             % Right side (after)
-        %             \node[state] (p2) at (2,0) {};
-        %             \node[state] (q2) at (2,-1.8) {};
-        %             \draw[arr] (p2) to node[right] {$e+f$} (q2);
-        %
-        %         \end{tikzpicture}
-        %         &
-        %            \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
-        %             % Left side (before)
-        %             \node[state] (p1) at (0,0) {};
-        %             \node[state] (q1) at (0,-1.8) {};
-        %
-        %             % Arrow between rules
-        %             \node (i) at (.7,-0.9) {$\twoheadrightarrow$};
-        %             \node[below=1.2cm of i] {Zero rule};
-        %         
-        %             % Right side (after)
-        %             \node[state] (p2) at (1.4,0) {};
-        %             \node[state] (q2) at (1.4,-1.8) {};
-        %             \draw[arr] (p2) to node[right] {$0$} (q2);
-        %
-        %         \end{tikzpicture}\\[1.5cm]
-        %         % Elimination rule
-        %         \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
-        %             % Left side (before)
-        %             \node[state] (p1) at (4,0) {};
-        %             \node (d1) at (4.5,0) {$\dots$};
-        %             \node[state] (q1) at (5,0) {};
-        %             \node[circ] (r1) at (4.5,-1.2) {};
-        %             \node[state] (s1) at (4.5,-2.4) {};
-        %             \draw[arr] (p1) to node[left] {$e_1$} (r1);
-        %             \draw[arr] (q1) to node[right] {$e_n$} (r1);
-        %             \draw[arr] (r1) to node[right] {$f$} (s1);
-        %             \node (d1') at (4.5,-.6) {\tiny $\dots$};
-        %             % Arrow between rules
-        %             \node (i) at (5.5,-1.2) {$\twoheadrightarrow$};
-        %             \node[below=2cm of i] {Loopless state elimination};
-        %
-        %             % Right side (after)
-        %             \pgfmathsetmacro{\shift}{6.5}
-        %             \node[state] (p2) at (\shift,0) {};
-        %             \node[state] (q2) at (\shift+1,0) {};
-        %             \node[state] (s2) at (\shift+0.5,-2.4) {};
-        %             \draw[arr] (p2) to node[left] {$e_1f$} (s2);
-        %             \draw[arr] (q2) to node[right] {$e_nf$} (s2);
-        %             \node (d2) at (\shift+0.5,0) {$\dots$};
-        %             \node (d2') at (\shift+0.5,-1.2) {{\tiny $\dots$}};
-        %         \end{tikzpicture}
-        %         &
-        %         % Elimination rule
-        %
-        %     \end{tabular}}
-        % \end{flushleft}
-        % ~\\[.5cm]
-        %     % Factorization rule
-        % \begin{center}
-        %   \begin{tikzpicture}[scale=1.0, every node/.style={transform shape}]
-        %             % Left side (before)
-        %             \node[state] (p1) at (-.5,0) {};
-        %                \node[state] (pn) at (3.5,0) {};
-        %             \node[state] (q1) at (1,-2.8) {};
-        %             \node[state] (q2) at (2.5,-2.8) {};
-        %             \node (dots) at (1.7,-2.8) {$\dots$};
-        %             \node (dots) at (1.7,0) {$\dots$};
-        %             \node (ad) at (.7,-1.4) {\tiny $\dots$};
-        %             \node (ad) at (2.7,-1.4) {\tiny $\dots$};
-        %             \draw[arr] (p1) to node[left] {$e_1$} (q1);
-        %             \draw[arr] (p1) to node[right] {$e_n$} (q2);
-        %             \draw[arr] (pn) to node[left] {$e_1$} (q1);
-        %             \draw[arr] (pn) to node[right] {$e_n$} (q2);
-        %
-        %             % Arrow between rules
-        %             \node (i) at (5,-1.4) {$\twoheadrightarrow$};
-        %             \node[below=1.4cm of i] {Factorization};
-        %
-        %             % Right side (after)
-        %             % \pgfmathsetmacro{\shift}{.5}
-        %             \begin{scope}[shift={(7,0)}]
-        %                 \node[state] (sp1) at (-.5,0) {};
-        %                 \node[state] (spn) at (3.5,0) {};
-        %                 \node[state] (sq1) at (0.8,-2.8) {};
-        %                 \node[state] (sq2) at (2.5,-2.8) {};
-        %                 \node[circ] (c) at (1.5,-1.4) {};
-        %                 \node (sdots) at (1.7,-2.8) {$\dots$};
-        %             \node (sdots) at (1.7,0) {$\dots$};
-        %             \draw[arr] (c) to node[left] {$e_1$} (sq1);
-        %             \draw[arr] (c) to node[right] {$e_n$} (sq2);
-        %             \draw[arr] (sp1) to node[left, below ] {$1$} (c);
-        %             \draw[arr] (spn) to node[right, below ] {$1$} (c);
-        %             \end{scope}
-        %         \end{tikzpicture}
-        %     \end{center}
-        %   
-        %     \caption{The rules are interpreted as follows.
-        %      Squares represent states for which some transitions are depicted but not necessarily all of them.
-        %         Circles represent states with all transitions explicitly shown.
-        %             Circles are distinct from surrounding nodes, unlike squares. The elimination rules do not remove the initial, nor a final state.
-        %             The factorization rule introduces a new state.}   \label{fig:chart-rewriting-rules}
-        % \end{figure}
 
 
 % As in the classical state-elimination algorithm, we apply the rewriting system only to charts that are rooted and terminal (i.e., with a unique sink final state). If a chart does not meet these conditions, we first normalise it by applying a \emph{root extension} and/or a \emph{sink completion}, defined below.
 
 \begin{definition}
-     \emph{Root extension} is the operation of adding, if the chart is not rooted, a fresh state which becomes its new initial state,
-     the adding a $1$-labelled transition from this state to the old initial state.
+    %  \emph{Root extension} is the operation of adding, if the chart is not rooted, a fresh state which becomes its new initial state,
+    %  the adding a $1$-labelled transition from this state to the old initial state.
 
-    \emph{Sink completion} is the operation of adding a fresh state to a chart, which becomes its unique final state, 
-    and adding a $1$-labelled transition from every old final state to the new one.
+    % \emph{Sink completion} is the operation of adding a fresh state to a chart, which becomes its unique final state, 
+    % and adding a $1$-labelled transition from every old final state to the new one.
 
-     \emph{Normalisation} is the operation of root extension and sink completion. We denote by 
-     $\llbracket C \rrbracket$ the normal form of a chart $C$.
+     \emph{Normalisation} of a chart $M$, denoted $\llbracket M\rrbracket$,  is the root extension followed by sink completion of $M$.
 \end{definition}
 
 \begin{definition}
@@ -1040,7 +877,7 @@ For every regular expressions $e$, we let ${N}(e)$ be the chart:
             \draw[arr] ([xshift=-5mm]p1.west) to (p1);
         \end{tikzpicture}
     \end{center}
-We say that a chart $M$ is \emph{reducible} to an expression $e$, and write $M\twoheadrightarrow^* e$ if:
+A chart $M$ is \emph{reducible} to an expression $e$, written $M\twoheadrightarrow^* e$, if:
      $$\llbracket M\rrbracket \twoheadrightarrow^* N(e).$$
 \end{definition}
 
@@ -1057,67 +894,20 @@ We say that a chart $M$ is \emph{reducible} to an expression $e$, and write $M\t
     ~\label{prop:Milner-is-reducible}
 \end{proposition}
 
-\begin{example}
-    Sur l'utilité de la restriction à one outgoing edge: $M(a(b+c))$, commentaire sur la règle $\twoheadrightarrow_{\mathsf{d}}$.
-     Si on n'avait pas la restriction à one outgoing edge, on pourrait réduire mais ça ne serait pas 
-     la bonne sémantique.
+% \begin{example}
+%     Sur l'utilité de la restriction à one outgoing edge: $M(a(b+c))$, commentaire sur la règle $\twoheadrightarrow_{\mathsf{d}}$.
+%      Si on n'avait pas la restriction à one outgoing edge, on pourrait réduire mais ça ne serait pas 
+%      la bonne sémantique.
 
-    Sur l'utilité de la factorization. Cette restriction est trop forte. Par exemple on ne pourra pas
-    réduire $M((a(b+c))^*)$ sans la règle de factorisation.
+%     Sur l'utilité de la factorization. Cette restriction est trop forte. Par exemple on ne pourra pas
+%     réduire $M((a(b+c))^*)$ sans la règle de factorisation.
 
-    Toutes les chartes ne sont pas réductibles. Donner un exemple bisimilaire a une Milner chart, et un autre pas.
-\end{example}
-
-
-
-% \subsection{Properties of the rewriting rule system}
-
-% \begin{definition}
-% Let $C$ be a chart. The chart $R_n(C)$ is obtained from $C$ 
-% by adding $n$ fresh states $I_1, \dots, I_n$ whose derivatives are those of $I$. 
-%  We say that $R_n(C)$ is the  \emph{$n$ root extension} of $C$.
-% \end{definition}
-
-% \begin{lemma}
-%     If $C$ reduce to $N(e)$ then $R_n(C)$ reduces to the following chart:
-%         \begin{center}
-%         \begin{tikzpicture}[
-%       >=Latex,
-%       state/.style={circle, draw, inner sep=1.6pt},
-%       ghost/.style={circle, draw, inner sep=1.2pt, gray!60},
-%       final/.style={state, double, double distance=1pt},
-%       lab/.style={font=\small},
-%       every edge quotes/.style={auto, text=black, font=\small}
-%     ]
-
-%             % First chart
-%             \node[circ] (p1) at (-1.5,0) {};
-%             \node[circ] (I1) at (-1.2,1) {};
-%             \node[circ] (In) at (0,1.5) {};
-%             \node[final] (f1) at (0,0) {};
-%             \draw[arr] (I1) to node[above, midway] {$e$} (f1);
-%             \draw[arr] (In) to node[right, midway] {$e$} (f1);
-%             \draw[arr] (p1) to node[above , midway] {$e$} (f1);
-%             % Incoming and outgoing arrows (horizontal)
-%             \draw[arr] ([xshift=-5mm]p1.west) to (p1);
-%         \end{tikzpicture}
-%     \end{center}
-% \end{lemma}
-
-% \subsection{ Milner chart of a regular expression is reducible}
+%     Toutes les chartes ne sont pas réductibles. Donner un exemple bisimilaire a une Milner chart, et un autre pas.
+% \end{example}
 
 
-% \begin{lemma}\label{prop:Milner-is-reducible}For every regular expression $e$,
-%      there is a regular expression $f$ such that $e\equiv f$ and:
-%      $$\underline{M}(e)\twoheadrightarrow^*
-%       N(f)$$
-%    where $\underline{M}(e)$ is the sink completion of $M(e)$.
-% \end{lemma}
 
-% \begin{definition}
-%   Let $C$ be a chart. We let $C-1$ be the chart obtained from $C$ by removing the initial state 
-%   from the set of final states if it belongs to it.
-% \end{definition}
+
 
 \begin{lemma} Let $M$ and $N$ be two rooted charts. We have:
   $$\begin{array}{rcl}
@@ -1130,26 +920,17 @@ We say that a chart $M$ is \emph{reducible} to an expression $e$, and write $M\t
 
 \begin{definition} Let $M$ be a chart whith a transition relation  $\Delta$. A \emph{labeling} of $M$ is a function 
 $\ell:Q \mapsto Re(\Sigma^*)$ satisfying, for every state $p$:
-$$\ell(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + f(\ell(p)).$$
-The \emph{root} of the labeling is the label of the initial state. We write $M\models e$ if there is a labeling of $M$ with root $e$.
-
+\begin{itemize}
+\item $\ell(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + \chi_1(\ell(p)),$
+\item $\chi_1(p) = \chi_1(\ell(p) )$.
+\end{itemize}
+The image of the initial state by $\ell$ is called its root. If $M$ has a labeling with root $e$, we write: $$M\models e.$$
 % We say that a chart  is \emph{labelable} if it admits a labeling.
 \end{definition}
 
 
-%     factorization rule, you can introduce a new state and rewrite the transitions accordingly.
-% \end{example}$\Sigma$ and a regular expressions $e$ such that $E(i)=e$ and for every $p \in Q$:
-    % $$ E(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} aE(q) + f(E(p)). $$
-%     \vspace{.5cm}
-%  We say that a Chart $C$ is \emph{decorable} if there exists a decoration $(E, e)$ of $C$.
-% \end{definition}
-
-\begin{example}
-    One of a decorable, another for a non decorable chart. For the moment we don't have the tools to show that a chart is not decorable.
-\end{example}
 
 
-%\subsection{Milner charts are labelable}
 
 
  \subsection{Reducible implies labelable}
@@ -1175,13 +956,14 @@ We conclude by noticing that the chart $N(e)\models e$.
 \subsection{Charts with bisimilar roots are bisimilar}
 
 \begin{proposition} Let $M$ and $N$ be charts and $e$ and $f$ expressions. We have:
-  $$ M\models e,\ \ N\models f \ \text{ and }\ e\equiv f \quad \Longrightarrow\quad M\sim N.$$
+  $$ M\models e,\ \ N\models f \ \text{ and }\ e\sim f \quad \Longrightarrow\quad M\sim N.$$
 \end{proposition}
 \begin{proof} let $\ell$ and $\ell'$ be labelings of $M$ and $N$ with roots $e$ and $f$ respectively.  We show that the relation $R$ between the states of $M$ and $N$ defined as follows:
   $$ (p,q)\in R \quad \Leftrightarrow \quad \ell(p) \equiv \ell'(q), $$
   is a bisimulation between $M$ and $N$.
 \end{proof}
-\begin{corollary} If a chart $M$ has a labeling with root $e$, then:
+If a chart has a labeling with root $e$, then it is bisimilar to $M(e)$.
+\begin{corollary} For every chart $M$ and expression $e$, we have:
   $$M\models e \quad \Longrightarrow\quad M\sim M(e).$$ 
 \end{corollary}
 
@@ -1193,18 +975,19 @@ We conclude by noticing that the chart $N(e)\models e$.
 
  \begin{remark} Note that charts over the alphabet $\Sigma$ are safe for reduction.
  \end{remark}
- \begin{lemma} Reduction safety is preserved by reduction.\end{lemma}
 
 \begin{proposition} Let $M$ be a chart safe for reduction. We have:
   $$ M \models e\ \text{ and }\  M\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f,$$ for every expressions $e$ and $f$.
 \end{proposition}
-\begin{proof} We show that reduction preserves the existence of a labeling with the same root.
+ \begin{lemma} Reduction safety is preserved by reduction.\end{lemma}
+We show that reduction preserves the existence of a labeling with the same root.
   \begin{claim} Let $M$ and $N$ be two charts safe for reduction. We have:
     $$ M \twoheadrightarrow N \ \text{ and }\ M \models e \quad \Longrightarrow\quad N \models e,$$ for every expression $e$.
   \end{claim}
 \begin{proof}
   By case analysis on the rewriting rule.
 \end{proof}
+\begin{proof} 
 
 %  Notice that $\llbracket C\rrbracket$ has a labeling with root $e$: we label the new initial state by $e$, the new sink by $1$ and label all the other states using the labeling of $C$.~\\
 
@@ -1213,25 +996,103 @@ We conclude by noticing that the chart $N(e)\models e$.
 
 As a consequence, we show that a chart is reducible to two expressions, then these expressions are equivalent.
 \begin{corollary} Let $M$ be a chart, and $e$ and $f$ be two expressions. We have:
-  $$ M \twoheadrightarrow^* e\ \text{ and }\  M\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f.$$
+  $$ M \twoheadrightarrow^* e\ \text{ and }\  M\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f.$$\label{cor:confluence}
 \end{corollary}
+
+% \section{Reducing traps}
+
+% \begin{definition} Let $q$ be a state of a chart $C$.
+%   The $q$-\emph{trap} of a chart $C$ is the sub-chart of $C$ whose initial state is $q$, whose set of states is the set of states reachable from $q$ and whose final states are the final states of $C$ reachable from $q$.
+% \end{definition}
+
+\section{Set-initial charts}
+
+\begin{proposition} 
+  Let $B_1$ and $B_2$ be two bridges of a chart $M$ and $N$ a normal chart. 
+  If $(B_1+B_2)\triangleright M \twoheadrightarrow^* N$, then:
+  $$B_1\triangleright M \twoheadrightarrow^* N_1,\quad  B_2\triangleright M \twoheadrightarrow^* N_2\quad  \text{ and } \quad N=N_1\oplus N_2$$
+  for some normal charts $N_1$ and $N_2$.
+\end{proposition}
+
+\begin{proposition}
+  Let $M$ be a chart and $B$ a bridge for $M$. We have: 
+  $$ M \twoheadrightarrow^* N \quad \Longrightarrow \quad B\triangleright M \twoheadrightarrow^* B'\triangleright N $$
+  for some bridge $B'$ for $N$ having the same frontier as $B$.
+\end{proposition}
 \section{Reducing traps}
 
-\begin{definition} Let $q$ be a state of a chart $C$.
-  The $q$-\emph{trap} of a chart $C$ is the sub-chart of $C$ whose initial state is $q$, whose set of states is the set of states reachable from $q$ and whose final states are the final states of $C$ reachable from $q$.
+\section{Chart quotients}
+
+
+\begin{definition}
+  The quotient of a chart $M$, denoted $\quotient{M}$, is the chart obtained from $M$ by identifying all bisimilar states.
 \end{definition}
 
-\section{Set initial charts}
+\begin{proposition} For every chart $M$ and expression $e$, we have:
+  $$\quotient{M}\models e\quad \Longrightarrow\quad M\models e. $$~\label{prop:quotient-preserves-labelability}\vspace{-15pt}
+\end{proposition}
 
+\begin{proposition}For every expression $e$, $\quotient{M(e)}$ is labelable.~\label{prop:quotient-of-Milner-chart-is-labelable}
+\end{proposition}
 
-\section{Proof of the Main Theorem}
-\begin{theorem} For every regular expressions $e$ and $f$, we have:
-     $$e\sim f \quad \Longrightarrow \quad e \equiv f.$$
+\subsection{Proof of completeness using quotients}
+We can now prove the completeness of Milner's axiomatization.
+
+\begin{theorem} For every expressions $e$ and $f$, we have:
+  $$ e\sim f \quad \Longrightarrow \quad e\equiv f.$$
 \end{theorem}
 \begin{proof}
-    Let $e$ and $f$ be two regular expressions such that $M(e)\sim M(f)$.
+ Let $e$ and $f$ be two expressions such that $e\sim f$. The charts $M(e)$ and $M(f)$ being trim and bisimilar, they have the same quotient $Q$.  By Proposition~\ref{prop:quotient-of-Milner-chart-is-labelable}, there is an expression $g$ such that: $$Q\models g.$$
+ Using Proposition~\ref{prop:quotient-preserves-labelability}, we have:
+   $$M(e)\models g\quad \text{ and } \quad M(f)\models g.$$
+  By Proposition~\ref{prop:milner-chart-is-decorable}, we also  have:
+   $$M(e)\models e\quad \text{ and } \quad M(f)\models f$$
+  By Corollary~\ref{cor:confluence}, we have then:
+   $$e\equiv g\quad \text{ and } \quad f \equiv g.$$Hence $e\equiv f$.
 \end{proof}
-    \begin{thebibliography}{9}
+
+It remains to show that for every expression $e$, the quotient of $M(e)$ is labelable. To prove this, we will rely on Proposition~\ref{prop:reducible-implies-decorable} and show that it is in fact reducible.
+
+
+
+\subsection{Erasing transitions from Milner charts}
+
+In general, erasing transitions from a Milner chart does not yields a Milner Chart. However, we show that if the erased transitions are \emph{coherent} and \emph{border}, then it does.
+
+\begin{definition} Let $M$ be a chart whose transition set is $\Delta$.~\\[-5pt]
+
+  A transition of $M$ is \emph{border} if its source is either initial or final.~\\[-5pt]
+  
+  A set $\Gamma\subseteq \Delta$ is \emph{coherent}, if for every  transitions  
+  $t, u\in \Delta$, whose sources are final and having the same label and target, we have:\vspace{-4pt}
+   $$ t\in \Gamma \quad \Leftrightarrow \quad u\in \Gamma.$$ 
+\end{definition}
+
+
+
+\begin{definition}  
+A \emph{letter erasing} of an expression $e$ is an expression obtained from $e$ by replacing some letter occurrences by $0$.
+\end{definition}
+
+\begin{proposition} Let $e$ be an expression and $\Gamma$ be a coherent set of border transitions of $M(e)$. There is a letter erasing $f$ of $e$ such that:
+  $$ M(e)\setminus \Gamma = M(f).$$
+\end{proposition}
+
+
+\subsection{Quasi-quotients are reducible}
+
+\begin{definition}
+  The quasiquotient of $M$, denoted $[M]$, is the chart obtained from $M$ by identifying all bisimilar states except the initial state.
+\end{definition}
+
+\begin{lemma}
+  For every rooted chart $M$, if $[M]$ is reducible then so is $\quotient{M}$.
+\end{lemma}
+
+\begin{proposition} For every expression $e$, $[M(e)]$ is reducible.\label{prop:quasi-quotient-of-Milner-chart-is-labelable}
+\end{proposition}
+
+  \begin{thebibliography}{9}
 \bibitem{Antimirov1996}
 V. Antimirov, ``Partial derivatives of regular expressions and finite automaton constructions,'' \emph{Theoretical Computer Science}, 155(2): 291--319, 1996.
 \end{thebibliography}
