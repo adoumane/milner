@@ -1,33 +1,3 @@
-% Définir les expressions régulières, definir la "finalité" de e f(e), comme 1 si e contient le mot vide et 0 sinon.
-% Définir le graphe (pointé) d'antimirov d'une regexp. Il ne faut pas l'appeller automate plutôt que graphe
-% Définir la bisimulation entre deux graphes (pointés), donner des exemples
-% Rapelle l'axiomatisation de Salooma. Le système de Salooma axiomatise l'egalité des langages d'expressions régulières. Rapelle tout ce qu'il faut pour définir l'axiomatisabilité et tout ça. Je ne sais pas s'il faut faire des defs generiques sur l'axiomatisatbilité d'une relation sur les regexp en général ou être plus specifique à ce cas?
-% Définir un système de Salooma modifié, que tu appelleras le système de Milner. La différence avec Salooma c'est qu'il y a la règle de distributivité à gauche (e+f)g=ef+eg mais pas la distributivité à droite (cad e(f+g)=ef+eg). Et garde seulement la loi e*=ee*+1 et enlève la loi e*=e*e+1.  Je l'appelle Système Milner car ce dernier a posé la question de s'il suffisait à axiomatiser la bisimulation. Note la prouvabilité e==f (remplace le == par un signe \equiv)
-% Enoncer le théorème qu'on va montrer: Le système de Milner axiomatise la bisimulation entre regexp.
-
-% Les ingrédients:
-
-% Le premier ingrédient:
-% On décrit un système de réecriture sur les graphes. 
-% Là tu dois me mettre trois règles: la première correspond à la state élimination sauf que ici, l'état à éliminer a une unique arrête sortante qui n'est pas une self loop. La deuxième opération transforme deux arêtes parallèle en une unique arête, La troisième prend un état p qui a potentiellement plusieurs fils, ajoute un nouvel état q qui a comme ensemble de fils un sous ensemble S des fils de q , ajoute une transition de p vers q, et enlève les éléments de S de l'ensemble des fils de p.
-
-% Ensuite  on normalise un graphe en  rajoutant un état initial et un état final comme on fait d'habitude. On dit qu'un graphe est réductible si sa normalisation se résuit vers: (mettre le graphe  
-% Proposition 1: Si G est le graphe d'une regexp alors G est  réductible 
-% (La réciproque est vrai aussi :Si un graphe est réductible alors c'est le graphe d'une expression mais on en a pas besoin pour la preuve du théorème principal, on le démontrera à la fin).
-
-% La deuxième notion importante:
-% Une décoration compatible d'un graphe c'est un étiquetage d'un graphe avec regexp, de telle sorte que pour toute etiquette e dont les fils sont e_1, ...e_n, on a (e==e_1+...+e_n +f(e)).
-% Proposition: Si un graph a deux décorations compatibles, alors e==f où e et f sont les racines de la décoration. 
-
-% Le troisième ingrédient:
-% Je dit qu'un graphe est compacte s'il n'a pas deux états distincts et bisimilaires. En partant d'un graphe quelquonque, on obtient un compact en fusionnant ses états bisimilaires. On appelle ça la compactification.
-
-% Le troisième résultat est que la compactification d'une regexp est une regexp. 
-
-% Voici comment on rassembler ces ingrédients: Tout d'abord on montre que pour toutes les reg exp compactes, si elles sont bisimilaires, elles sont prouvables, en effet, si elle sont bisimilaires elles ont le même graphe, ce qui donne deux décorations compatibles pour ce graphe, et donc les expressions sont prouvablement équivalentes.
-
-% Maintenant si e est une expression quelquonque et c une regexp pour sa compactification, il est facile de voir que c et ses dérivées forment une décoration compatible pour le graphe de e. Evidememnt e lui même induit une décoration compatible de son graphe. Comme G est le graphe de e il est réductible (prop1) et donc e==c. CE qui achève la preuve.  
-
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
@@ -114,15 +84,16 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
 
 \newcommand{\A}{\mathcal{A}}
 \newcommand{\B}{\mathcal{B}}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\newcommand{\ctrct}[1]{\llbracket #1 \rrbracket}
 
 \begin{document}
-\title{Axiomatization of Bisimulation for Regular Expressions}
+\title{Chart semantics for regular expressions:\\characterization and axiomatization}
 \author{Your Name}
 \date{\today}
 \maketitle  
 \begin{abstract}
-This document presents a modified version of Salooma's axiomatization for regular expressions, referred to as the Milner system. The focus is on the bisimulation between regular expressions and their corresponding graphs. We define the necessary concepts, including regular expressions, their graphs, and the bisimulation relation. We then introduce a rewriting system for graphs and demonstrate the properties of reducibility and compatibility of decorations. Finally, we prove that the Milner system axiomatizes bisimulation between regular expressions.
-
+We define a Milner chart, a transition structure naturally associated with a regular expression. We provide a rewriting-based characterization of these charts and establish a precise correspondence between bisimilarity of Milner charts and equivalence in Milner’s equational system for regular expressions. 
 \end{abstract}
 \section{Introduction}
 
@@ -157,30 +128,19 @@ A \emph{chart} over an alphabet $\Sigma$ is a tuple $(Q, \Sigma, \Delta, I, F)$ 
     \item $I \in Q$ is the \emph{initial} state,
     \item $F \subseteq Q$ is the set of \emph{final} states.
 \end{itemize}
-%A transition of the form $(q, a, q)$ is called a \emph{self-loop} on $q$.
-The derivatives of a state $q$ is the set:
-$$ D(q) = \{ (a, q') \mid (q, a, q') \in \Delta \}$$
+The set of derivatives  of a state $q$ is defined by:
+\[
+D(q)=\{(a,q')\mid(q,a,q')\in\Delta\},
+\]
+and its finality is the function $\chi$ defined as follows:
+\[
+\chi(q)=
+\begin{cases}
+1 & \text{if $q$ is final},\\
+0 & \text{otherwise.}
+\end{cases}
+\]
 \end{definition}
-% Define a custom elongated arrow for transitions
-
-
-% \begin{definition} 
-% Let $\mathcal{T}$ be a chart whose set of states is $Q$ and whose transition relation is $\delta$. For every word $u$, we define the relation $\longxrightarrow{u}_{\mathcal{T}}$ on $Q$ as follows:
-%     \begin{itemize}
-%         % La relation pour le mot vide est l'identité.
-%         \item $\longxrightarrow{\varepsilon}_{\mathcal{T}}$ is the identity relation on $Q$.
-%         % Pour une lettre, la relation est simplement la relation de transition.
-%         \item $\longxrightarrow{a}_{\mathcal{T}}$ is the transition relation $\delta$, for $a\in \Sigma$.
-%         % Pour un mot composé, la relation est la composition des relations pour chaque facteur.
-%         \item $\longxrightarrow{uv}_{\mathcal{T}}$ is the composition of $\longxrightarrow{u}_{\mathcal{T}}$ and $\longxrightarrow{v}_{\mathcal{T}}$, for $u, v\in \Sigma^*$.
-%     \end{itemize}
-%     \vspace{1em}
-%     % Définition du langage reconnu par le graphe.
-% The \emph{language} recognized by $\mathcal{T}$ is:
-% \[
-% \mathcal{L}(\mathcal{T}) := \{ w \in \Sigma^* \mid \exists f \in F,\ i \xrightarrow{w} f \}
-% \]
-% \end{definition}
 
 \begin{remark}
 When clear from context or irrelevant, we omit the alphabet of a chart.
@@ -190,55 +150,21 @@ transitions set; this is equivalent.
 
 \subsection{Milner Charts}
 
-\begin{definition} A chart is \emph{rooted} if its initial state has no ingoing transitions.
-\end{definition}
 
 
-
-% \begin{definition}
-%     For $i=1,2$, let $C_i = (Q_i, \Delta_i, I_i, F_i)$ be a chart. 
-%     The \emph{union} of $C_1$ and $C_2$, denoted $C_1 + C_2$, is the chart whose:
-%     \begin{itemize}
-%         \item set of states is  obtained from $Q_1 \sqcup Q_2$ by adding a fresh state $I$, 
-%         and removing $I_i$ if $C_i$ is rooted, for $i=1,2$,
-%         \item initial state is $I$,
-%         \item set of final states is obtained from $F_1\sqcup F_2$ by removing $I_i$ if $C_i$ is rooted for $i=1,2$,
-%         and adding $I$ if 
-%         $I_1\in F_1$ or $I_2\in F_2$. 
-%         \item transition relation is obtained from $\Delta_1 \sqcup \Delta_2$ by removing the
-%          transitions involving the states that have been removed, then adding:
-%         $$\{(I,a, q)\mid
-%          ((I_1,a, q)\in \Delta_1 \text{ or }\ (I_2,a, q)\in \Delta_2)\}.$$
-%     \end{itemize}
-% \end{definition}
 
 \begin{definition}
-The union $C_1 + C_2$  of two charts $C_1$ and $C_2$, is the chart whose state set is the disjoint union of those of $C_1$ and $C_2$, plus 
-a fresh state~$I$, minus the initial state of $C_i$ if it is rooted, for $i=1,2$. 
-Its new initial state is $I$. 
-Its final states are those of $C_1$ and $C_2$, 
-except the possibly removed states; plus
- $I$ if one of the old initial states was final. 
- The derivatives of the states are inherited from $C_1$ and $C_2$, and the derivatives of 
- $I$ are the union of the derivatives of the old initial states. 
+The \emph{union} of two charts $C$ and $D$, denoted $C + D$, 
+is obtained by taking their disjoint union, adding a fresh initial state~$s$ 
+that inherits the derivatives of the initial states of~$C$ and~$D$, 
+and making~$s$ final whenever one of them is final.
+Finally, states not reachable from~$s$ are removed.
 \end{definition}
 
-% \begin{definition}
-%     Let $C_i=(Q_i,\Delta_i,I_i,F_i)$ for $i=1,2$ be two charts. Define $C_1+C_2=(Q,\Delta,I,F)$ with fresh $I$ by
-% \[
-% \begin{aligned}
-% Q \;&=\; (Q_1 \sqcup Q_2 \cup \{I\}) \setminus \{\,I_i \mid C_i \text{ rooted}\,\},\\
-% F \;&=\; \bigl(F_1 \cup F_2\bigr)\setminus \{\,I_i \mid C_i \text{ rooted}\,\}\;\cup\;
-%     \bigl(\{I\}\text{ if }I_1\in F_1\text{ or }I_2\in F_2\bigr),\\
-% \Delta \;&=\; \{(p,a,q)\in \Delta_1\cup\Delta_2 \mid p,q\in Q\}
-%           \;\cup\; \{\, (I,a,q)\mid (I_i,a,q)\in \Delta_i \text{ for some }i \,\}.
-% \end{aligned}
-% \]
-% \end{definition}
 
-\begin{example} The union of a rooted chart $C$ and a non rooted chart $D$:
-    \begin{center}
-\begin{tikzpicture}[
+\begin{example}  Here is an example of the sum of two charts $C$ and $D$:
+  \begin{center}
+  \begin{tikzpicture}[
   >=Latex,
   box/.style={rounded corners, draw, thick, inner sep=8pt, minimum width=2.3cm, minimum height=3cm},
   state/.style={circle, draw, inner sep=1.6pt},
@@ -348,30 +274,18 @@ except the possibly removed states; plus
 \end{example}
 
 
-% \begin{definition}
-% For $i=1,2$, let $C_i = (Q_i, \Sigma, \Delta_i, I_i, F_i)$ be a chart. 
-% \emph{Sequential composition} of $C_1$ and $C_2$, denoted $C_1 \cdot C_2$, is the chart  whose:
-% \begin{itemize}
-%     \item set of states is obtained from $Q_1 \sqcup Q_2$ by removing $I_2$ if $C_2$ is rooted,
-%     \item initial state is $I_1$,
-%     \item set of final states is $F_2$ to which we add $F_1$ if $I_2\in F_2$ and from which we
-%      remove $I_2$ if $C_2$ is rooted.
-%     \item  transition relation is obtained from $\Delta_1 \sqcup \Delta_2$ by removing the 
-%     transitions involving the state $I_2$ if it has been removed, then adding:
-%     $$\{\, (f,a,q) \mid f \in F_{1} \text{ and } (I_2,a,q) \in \Delta_{2} \,\}.$$
-% \end{itemize}
-% \end{definition}
+
 
 \begin{definition}
-The sequential composition $C_1 \cdot C_2$ of two charts $C_1$ and $C_2$ is 
-the chart whose state set is the disjoint union of their state sets, 
-removing the initial state $I_2$ of $C_2$ if that chart was rooted. 
-Its initial state is that of $C_1$. Its final states are those of $F_2$,
- together with the finals of $C_1$ if $I_2$ was final, and minus $I_2$ if it was removed.
- The derivatives of the states are inherited from $C_1$ and $C_2$, except for the final states of 
- $C_1$ to which we add the derivatives of $I_2$.
+The \emph{sequential composition} of two charts $C$ and $D$, denoted $C \cdot D$, 
+is obtained from their disjoint union by adding to the derivatives of each final state of~$C$ 
+the derivatives of the initial state of~$D$, and marking it final 
+whenever the initial state of~$D$ is final. 
+The initial state of~$C$ becomes that of the composition, 
+and unreachable states are removed.
 \end{definition}
-\begin{example} The sequential composition if two charts $C$ and $D$ where $D$ is rooted.
+
+\begin{example} An example of sequential composition of two charts $C$ and $D$:
     \begin{center}
 \begin{tikzpicture}[
   >=Latex,
@@ -478,29 +392,16 @@ Its initial state is that of $C_1$. Its final states are those of $F_2$,
 \end{center}
 \end{example}
 
-%\begin{definition}
-%     Let $C = (Q, \Sigma, \Delta, I, F)$ be a chart. The \emph{star} of $C$, denoted $C^*$, is the chart whose:
-%     \begin{itemize}
-%         \item set of states is $Q$ to which we add a fresh state $I'$ and remove $I$ if 
-%         $C$ is rooted,
-%         \item initial state is $I'$,
-%         \item set of final states is $F$ to which we add $I'$ and remove $I$ if $C$ is rooted,
-%         \item transition relation is obtained from $\Delta$ by removing the transitions involving $I$ 
-%         if it has been removed, then adding:
-%         $$\{ (p, a, q) \mid p \in F\cup \{I'\},\ (I, a, q) \in \Delta \}.$$
-%     \end{itemize}
-% \end{definition}
-
 \begin{definition}
-The star $C^{*}$ of a chart $C$ is the chart obtained as follows. 
-Its set of states is that of $C$, plus a fresh initial state $I'$, and minus the old initial state $I$ if $C$ was rooted. 
-The new initial state is $I'$. 
-The set of final states consists of the finals of $C$ together with $I'$, with $I$ removed if it was deleted. 
-The transition relation is inherited from $C$, except that each final state of $C$ additionally inherits all outgoing transitions of $I$; moreover, $I'$ has exactly the outgoing transitions of $I$.
+The \emph{Kleene star} of a chart $C$, denoted $C^*$, 
+is obtained by adding to each final state of~$C$ 
+the derivatives of its initial state, 
+which remains initial and becomes also final. 
+Unreachable states are then removed.
 \end{definition}
 
 
-\begin{example} Let $C$ be a the left chart, it ietaration $C^*$ is the right chart. 
+\begin{example} Example of ietration of a chart. 
 \begin{center}
 \begin{tikzpicture}[
   >=Latex,
@@ -582,20 +483,36 @@ The transition relation is inherited from $C$, except that each final state of $
 \end{tikzpicture}
 \end{center}
 \end{example}
+
+
 \begin{definition}
-The \emph{Milner chart} $M(e)$ of a regular expression $e$ is defined inductively as follows:
-\begin{itemize}
-        \item $M(0) = (\{i, f\}, i, \{f\}, \emptyset)$
-    \item $M(1) = (\{\star\}, \star, \{\star\}, \emptyset)$,
-    \item $M(a) = (\{i, f\}, i, \{f\}, \{(i, a, f)\})$, 
-    \item $M(e+f) = M(e) + M(f)$,
-    \item $M(e \cdot f) = M(e) \cdot M(f)$,
-    \item $M(e^*) = M(e)^*$.
-\end{itemize}
+The constant chart $\mathbf{0}$ has a single state, which is initial and non-final, with no transitions.  
+The constant chart $\mathbf{1}$ has a single state, both initial and final, with no transitions.  
+For each letter $a$, the chart $\mathbf{a}$ has two states, one initial and one final, 
+connected by a single $a$-labeled transition.
+\end{definition}
+
+\begin{definition}
+The \emph{Milner chart} of an expression~$e$ over the alphabet $\Sigma$, denoted $M(e)$, is defined by induction as follows, 
+where  $a \in \Sigma$:
+\[
+\begin{array}{rclcrclcrcl}
+M(0) & = & \mathbf{0} &  &
+M(1) & = & \mathbf{1} &  &
+M(a) & = & \mathbf{a} \\[4pt]
+M(e+f) & = & M(e)+M(f) & &
+M(e\cdot f) & = & M(e)\cdot M(f) & &
+M(e^*) & = & M(e)^*
+\end{array}
+\]
 \end{definition}
 
 \begin{example} The milner chart of $a(b+c), (a(b+c))^*$ et $ab^*+c^*$.
 \end{example}
+
+
+\begin{definition} A chart is \emph{rooted} if its initial state has no ingoing transitions.
+\end{definition}
 
 \begin{proposition}
 For every regular expression $e$, $M(e)$ is rooted.
@@ -611,7 +528,7 @@ For every regular expression $e$, $M(e)$ is rooted.
 \begin{definition}
 Let $C$ and $D$ be two charts with state sets $Q$ and $Q'$ and respectively. A relation $R\subseteq Q\times Q'$ is a \emph{bisimulation} between $C$ and $D$ if:
 \begin{itemize}
-    \item $(p,q)\in R \Rightarrow\chi_1(p)=\chi_1(q)$, 
+    \item $(p,q)\in R \Rightarrow\chi(p)=\chi(q)$, 
     \item $\xlongleftarrow{a}_{C}\cdot R\ =\ R \cdot \xlongleftarrow{a}_{D}$ and
     \item $\xlongrightarrow{a}_{C} \cdot R\;=\;R \cdot \xlongrightarrow{a}_{D}$.
 \end{itemize}
@@ -621,23 +538,10 @@ Let $(p,q)\in C\times D$. We say that $p$ and $q$ are \emph{bisimilar}, and writ
 We say that $C$ and $D$ are \emph{bisimilar}, and write $C \sim D$, if there initial states are bisimilar.
 \end{definition}
 
-\begin{definition}
-The \emph{chart language} $\mathcal{C}(e)$ of a regular expression $e$ is the set of charts bisimilar to its Milner chart. 
-\end{definition}
-
 \subsection{Milner's Axiomatization}
 
 
-\begin{definition} We define the \emph{finality} function $f$ from regular
-         expressions to $\{0,1\}$
-         as follows:
-\[
-\begin{aligned}
-&f(0)=0, \quad f(1)=1, \quad f(a)=0 \quad (a \in \Sigma), \\[0.3em]
-&f(e+g)=\max(f(e),f(g)), \quad f(eg)=f(e)f(g), \quad f(e^*)=1 .
-\end{aligned}
-\]
-If $f(e)=1$ we write $e\Downarrow$ and say that $e$ is \emph{final}. Otherwise we write $e\Uparrow$. 
+\begin{definition} For every regular expression $e$, we write $e\Downarrow$ if the initial state of $M(e)$ is final. We write $e\Uparrow$ otherwise.
     \end{definition}
 
 
@@ -694,22 +598,33 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
 \end{definition}
 
 
+Our goal in the remainder of this paper is to address two questions:  
+whether Milner charts can be recognized among all charts,  
+and whether Milner’s axiomatization is complete with respect to bisimulation equivalence.  
+We will answer these questions by means of a rewriting system introduced in the next section.
 
 \section{Rewriting system for charts}
 
+We work with a slightly broader class of structures,  
+called \emph{networks}, which extend ordinary charts by allowing multiple inputs.  
+The rewriting system will be defined on these networks.
 
 
-    \begin{definition} We consider the rewriting rules of Figure~\ref{},  which transform charts over $\Sigma^*$ into charts
-         over
-         $\Sigma^*$. They are to be interpreted as follows:
-              squares represent states for which some transitions are depicted but not necessarily all of them.
-               Circles represent states with all transitions explicitly shown.
-                    Circles are distinct from surrounding nodes, unlike squares, and they are not initial nor final.   We let $\twoheadrightarrow$ denote the union of all these rewriting rules.
+
+\begin{definition} We consider the rewriting rules of Figure~\ref{fig:rewriting-rules}, 
+which transform networks over~$\Sigma^*$ into networks over~$\Sigma^*$. 
+In this picture,
+\begin{itemize}
+    \item squares denote states for which only some transitions are shown,
+    \item circles denote states whose transitions are all explicitly displayed,
+    \item circles are distinct from surrounding nodes and are neither initial nor final.
+\end{itemize}
+We write~$\twoheadrightarrow$ for the union of all these rewriting rules.\end{definition}
                     
                     \begin{figure}[h!]
                       \begin{center} 
-                        \fboxsep=10pt  % padding between content and box
-\fboxrule=1pt   \fbox{%
+                      %  \fboxsep=10pt  % padding between content and box
+%\fboxrule=1pt   \fbox{%
 \begin{tabular}{ccc}
 \textbf{Zero} & \quad & \textbf{Parallel merge} \\[20pt]
   \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
@@ -828,34 +743,30 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
             \draw[arr] (spn) to node[right, below ] {$1$} (c);
             \end{scope}
         \end{tikzpicture}\\
-\end{tabular}}
+\end{tabular}
+%}
 \end{center}~\\[15pt]
+\caption{\label{fig:rewriting-rules} Rewriting rules for networks}
      \end{figure}
 
+     As in other rewriting systems, such as state elimination for automata, 
+we require that initial and final states have no incoming 
+and no outgoing transitions, respectively. 
+We introduce a \emph{normalization} operation that enforces that.
+
   
-    \end{definition}
-  %   \begin{remark}
-  %  If in a chart, some states $q_1,\dots, q_m $ have a common subset
-  %    $S$ of derivatives, then the rewriting rule 
-  %   $\twoheadrightarrow_{\mathsf{f}}$:
-  %   \begin{itemize}
-  %   \item creates a fresh state $q$ such that $D(q)=S$,
-  %   \item removes $S$ from the derivatives of $q_i$ and adds $(1,q)$, for $i\in\{1,\dots,m\}$.
-  %   \end{itemize}
-  %   %We call the states $q_1,\dots, q_n$ \emph{partners} and $q$ their \emph{factor}.
-  %   \end{remark}
-
-
-% As in the classical state-elimination algorithm, we apply the rewriting system only to charts that are rooted and terminal (i.e., with a unique sink final state). If a chart does not meet these conditions, we first normalise it by applying a \emph{root extension} and/or a \emph{sink completion}, defined below.
 
 \begin{definition}
-    %  \emph{Root extension} is the operation of adding, if the chart is not rooted, a fresh state which becomes its new initial state,
-    %  the adding a $1$-labelled transition from this state to the old initial state.
-
-    % \emph{Sink completion} is the operation of adding a fresh state to a chart, which becomes its unique final state, 
-    % and adding a $1$-labelled transition from every old final state to the new one.
-
-     \emph{Normalisation} of a chart $M$, denoted $\llbracket M\rrbracket$,  is the root extension followed by sink completion of $M$.
+The \emph{normalization} of a network~$C$ is obtained as follows:
+\begin{itemize}
+    \item for each initial state $I$, if  it has incoming transitions, 
+    add a fresh state with the same derivatives, and a $1$-labelled transition from it to the former initial state, 
+    add a transition labelled~$n$ from the new initial state to it;
+    \item add a fresh final state, called the \emph{sink}, which becomes the unique final state with no extensions;
+    \item for each former final state and each of its extensions~$n$, 
+    add a transition labelled~$n$ from that state to the sink.
+\end{itemize}
+The obtained network is denoted by $\llbracket C\rrbracket$, 
 \end{definition}
 
 \begin{definition}
@@ -922,8 +833,8 @@ A chart $M$ is \emph{reducible} to an expression $e$, written $M\twoheadrightarr
 \begin{definition} Let $M$ be a chart whith a transition relation  $\Delta$. A \emph{labeling} of $M$ is a function 
 $\ell:Q \mapsto Re(\Sigma^*)$ satisfying, for every state $p$:
 \begin{itemize}
-\item $\ell(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + \chi_1(\ell(p)),$
-\item $\chi_1(p) = \chi_1(\ell(p) )$.
+\item $\ell(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + \chi(\ell(p)),$
+\item $\chi(p) = \chi(\ell(p) )$.
 \end{itemize}
 The image of the initial state by $\ell$ is called its root. If $M$ has a labeling with root $e$, we write: $$M\models e.$$
 % We say that a chart  is \emph{labelable} if it admits a labeling.
@@ -960,7 +871,7 @@ We conclude by noticing that the chart $N(e)\models e$.
   $$ M\models e,\ \ N\models f \ \text{ and }\ e\sim f \quad \Longrightarrow\quad M\sim N.$$
 \end{proposition}
 \begin{proof} let $\ell$ and $\ell'$ be labelings of $M$ and $N$ with roots $e$ and $f$ respectively.  We show that the relation $R$ between the states of $M$ and $N$ defined as follows:
-  $$ (p,q)\in R \quad \Leftrightarrow \quad \ell(p) \equiv \ell'(q), $$
+  $$ (p,q)\in R \quad \Leftrightarrow \quad \ell(p) \sim \ell'(q), $$
   is a bisimulation between $M$ and $N$.
 \end{proof}
 If a chart has a labeling with root $e$, then it is bisimilar to $M(e)$.
@@ -1008,16 +919,7 @@ As a consequence, we show that a chart is reducible to two expressions, then the
 
 \section{Adding new initial states}
 
-\begin{definition} 
-A \emph{generalized chart} is a tuple $(Q, \Sigma, \Delta, I, F)$ where:
-\begin{itemize}
-    \item $Q$ is a finite set of \emph{states},
-    \item $\Sigma$ is a finite input alphabet,
-    \item $\Delta \subseteq Q \times \Sigma \times Q$ is a set of \emph{transitions},
-    \item $I \subseteq Q$ is the set of \emph{initial} state,
-    \item $F \subseteq Q$ is the set of \emph{final} states.
-\end{itemize}
-\end{definition}
+
 
 We use the same rewriting system as for charts.
 \begin{definition}
@@ -1043,41 +945,8 @@ The \emph{bridge application} of $B$ to $M$, denoted $B\triangleright M$, is the
 \end{lemma}
 \section{Reducing traps}
 
-\section{Chart quotients}
 
-
-\begin{definition}
-  The quotient of a chart $M$, denoted $\quotient{M}$, is the chart obtained from $M$ by identifying all bisimilar states.
-\end{definition}
-
-\begin{proposition} For every chart $M$ and expression $e$, we have:
-  $$\quotient{M}\models e\quad \Longrightarrow\quad M\models e. $$~\label{prop:quotient-preserves-labelability}\vspace{-15pt}
-\end{proposition}
-
-\begin{proposition}For every expression $e$, $\quotient{M(e)}$ is labelable.~\label{prop:quotient-of-Milner-chart-is-labelable}
-\end{proposition}
-
-\subsection{Proof of completeness using quotients}
-We can now prove the completeness of Milner's axiomatization.
-
-\begin{theorem} For every expressions $e$ and $f$, we have:
-  $$ e\sim f \quad \Longrightarrow \quad e\equiv f.$$
-\end{theorem}
-\begin{proof}
- Let $e$ and $f$ be two expressions such that $e\sim f$. The charts $M(e)$ and $M(f)$ being trim and bisimilar, they have the same quotient $Q$.  By Proposition~\ref{prop:quotient-of-Milner-chart-is-labelable}, there is an expression $g$ such that: $$Q\models g.$$
- Using Proposition~\ref{prop:quotient-preserves-labelability}, we have:
-   $$M(e)\models g\quad \text{ and } \quad M(f)\models g.$$
-  By Proposition~\ref{prop:milner-chart-is-decorable}, we also  have:
-   $$M(e)\models e\quad \text{ and } \quad M(f)\models f$$
-  By Corollary~\ref{cor:confluence}, we have then:
-   $$e\equiv g\quad \text{ and } \quad f \equiv g.$$Hence $e\equiv f$.
-\end{proof}
-
-It remains to show that for every expression $e$, the quotient of $M(e)$ is labelable. To prove this, we will rely on Proposition~\ref{prop:reducible-implies-decorable} and show that it is in fact reducible.
-
-
-
-\subsection{Erasing transitions from Milner charts}
+\section{Erasing transitions from Milner charts}
 
 In general, erasing transitions from a Milner chart does not yields a Milner Chart. However, we show that if the erased transitions are \emph{coherent} and \emph{border}, then it does.
 
@@ -1101,18 +970,48 @@ A \emph{letter erasing} of an expression $e$ is an expression obtained from $e$ 
 \end{proposition}
 
 
-\subsection{Quasi-quotients are reducible}
 
+\section{Chart quotients}
+
+\subsection{Definition and properties of quotients}
 \begin{definition}
-  The quasiquotient of $M$, denoted $[M]$, is the chart obtained from $M$ by identifying all bisimilar states except the initial state.
+  The quotient of a chart $M$, denoted $\quotient{M}$, is the chart obtained from $M$ by identifying all bisimilar states.
 \end{definition}
 
-\begin{lemma}
-  For every rooted chart $M$, if $[M]$ is reducible then so is $\quotient{M}$.
-\end{lemma}
-
-\begin{proposition} For every expression $e$, $[M(e)]$ is reducible.\label{prop:quasi-quotient-of-Milner-chart-is-labelable}
+\begin{proposition} For every chart $M$ and expression $e$, we have:
+  $$\quotient{M}\models e\quad \Longrightarrow\quad M\models e. $$~\label{prop:quotient-preserves-labelability}\vspace{-15pt}
 \end{proposition}
+
+\begin{proposition}
+  Let $M$ be a chart. We have:
+  $$ M\twoheadrightarrow e\ \text{ and }\ \quotient{M}\twoheadrightarrow f \quad \Longrightarrow\quad e\equiv f,$$ for every expressions $e$ and $f$.
+\end{proposition}
+
+
+\subsection{Quotients of Milner charts are reducible}
+\begin{proposition}For every expression $e$, $\quotient{M(e)}$ is reducible.~\label{prop:quotient-of-Milner-chart-is-labelable}
+\end{proposition}
+
+\section{Proof of completeness}
+We can now prove the completeness of Milner's axiomatization.
+
+\begin{theorem} For every expressions $e$ and $f$, we have:
+  $$ e\sim f \quad \Longrightarrow \quad e\equiv f.$$
+\end{theorem}
+\begin{proof}
+ Let $e$ and $f$ be two expressions such that $e\sim f$. The charts $M(e)$ and $M(f)$ being trim and bisimilar, they have the same quotient $Q$.  By Proposition~\ref{prop:quotient-of-Milner-chart-is-labelable}, there is an expression $g$ such that: $$Q\models g.$$
+ Using Proposition~\ref{prop:quotient-preserves-labelability}, we have:
+   $$M(e)\models g\quad \text{ and } \quad M(f)\models g.$$
+  By Proposition~\ref{prop:milner-chart-is-decorable}, we also  have:
+   $$M(e)\models e\quad \text{ and } \quad M(f)\models f$$
+  By Corollary~\ref{cor:confluence}, we have then:
+   $$e\equiv g\quad \text{ and } \quad f \equiv g.$$Hence $e\equiv f$.
+\end{proof}
+
+
+
+
+
 
   \begin{thebibliography}{9}
 \bibitem{Antimirov1996}
