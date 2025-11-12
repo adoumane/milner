@@ -162,7 +162,7 @@ The derivatives of a state $q$ is the set:
 $$ D(q) = \{ (a, q') \mid (q, a, q') \in \Delta \}$$
 \end{definition}
 % Define a custom elongated arrow for transitions
-\newcommand{\longxrightarrow}[2][]{\xrightarrow{\hspace{0.5em}#2\hspace{0.5em}}}
+
 
 % \begin{definition} 
 % Let $\mathcal{T}$ be a chart whose set of states is $Q$ and whose transition relation is $\delta$. For every word $u$, we define the relation $\longxrightarrow{u}_{\mathcal{T}}$ on $Q$ as follows:
@@ -1006,20 +1006,41 @@ As a consequence, we show that a chart is reducible to two expressions, then the
 %   The $q$-\emph{trap} of a chart $C$ is the sub-chart of $C$ whose initial state is $q$, whose set of states is the set of states reachable from $q$ and whose final states are the final states of $C$ reachable from $q$.
 % \end{definition}
 
-\section{Set-initial charts}
+\section{Adding new initial states}
 
-\begin{proposition} 
-  Let $B_1$ and $B_2$ be two bridges of a chart $M$ and $N$ a normal chart. 
-  If $(B_1+B_2)\triangleright M \twoheadrightarrow^* N$, then:
-  $$B_1\triangleright M \twoheadrightarrow^* N_1,\quad  B_2\triangleright M \twoheadrightarrow^* N_2\quad  \text{ and } \quad N=N_1\oplus N_2$$
-  for some normal charts $N_1$ and $N_2$.
-\end{proposition}
+\begin{definition} 
+A \emph{generalized chart} is a tuple $(Q, \Sigma, \Delta, I, F)$ where:
+\begin{itemize}
+    \item $Q$ is a finite set of \emph{states},
+    \item $\Sigma$ is a finite input alphabet,
+    \item $\Delta \subseteq Q \times \Sigma \times Q$ is a set of \emph{transitions},
+    \item $I \subseteq Q$ is the set of \emph{initial} state,
+    \item $F \subseteq Q$ is the set of \emph{final} states.
+\end{itemize}
+\end{definition}
 
-\begin{proposition}
-  Let $M$ be a chart and $B$ a bridge for $M$. We have: 
-  $$ M \twoheadrightarrow^* N \quad \Longrightarrow \quad B\triangleright M \twoheadrightarrow^* B'\triangleright N $$
-  for some bridge $B'$ for $N$ having the same frontier as $B$.
-\end{proposition}
+We use the same rewriting system as for charts.
+\begin{definition}
+Let $M$ be a chart over $\Sigma$ whose state set is $Q$ and initial state set $I$, and  let $E$ be a set of fresh names. \\[-5pt]
+
+A \emph{bridge} of \emph{external shore} $E$ on $M$ is a subset of $E\times \Sigma \times (Q\setminus I)$.\\[-5pt]
+
+The \emph{bridge application} of $B$ to $M$, denoted $B\triangleright M$, is the generalized chart obtained from $M$ by adding $E$ to the initial states set and adding $B$ to the transitions set, keeping the other components unchanged.
+\end{definition}
+
+
+%   \begin{proposition} 
+%   Let $B_1$ and $B_2$ be two bridges of a chart $M$ and $N$ a normal chart. 
+%   If $(B_1+B_2)\triangleright M \twoheadrightarrow^* N$, then:
+%   $$B_1\triangleright M \twoheadrightarrow^* N_1,\quad  B_2\triangleright M \twoheadrightarrow^* N_2\quad  \text{ and } \quad N=N_1\oplus N_2$$
+%   for some normal charts $N_1$ and $N_2$.
+% \end{proposition}
+
+\begin{lemma}
+  Let $M$ and $M'$ be a charts and $B$ a bridge for $M$. We have:
+  $$ M\ \twoheadrightarrow\ M' \quad \Longrightarrow \quad B\triangleright M\ \twoheadrightarrow\ B'\triangleright M' $$
+  where $B'$ is a bridge for $M'$ having the same external shore as $B$.
+\end{lemma}
 \section{Reducing traps}
 
 \section{Chart quotients}
