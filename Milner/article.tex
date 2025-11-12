@@ -44,31 +44,11 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
 }
 \usepackage{scalerel}
 
-% Demi-cercles creux
-\newcommand{\lsemicirc}[1]{%
-  \mathopen{\scalerel*{%
-    \tikz[baseline=-0.5ex]{
-      \draw[line width=0.4pt]
-        (0,0.6ex) -- (0.1ex,0.6ex)
-        arc (90:270:0.6ex)
-        -- (0,-0.6ex) -- (0.1ex,-0.6ex);
-    }}{#1}}}
 
-\newcommand{\rsemicirc}[1]{%
-  \mathclose{\scalerel*{%
-    \tikz[baseline=-0.5ex]{
-      \draw[line width=0.4pt]
-        (0,0.6ex) -- (-0.1ex,0.6ex)
-        arc (90:-90:0.6ex)
-        -- (0,-0.6ex) -- (-0.1ex,-0.6ex);
-    }}{#1}}}
-% Demi-cercles pleins
-\newcommand{\lsemicircfilled}[1]{\mathopen{\scalerel*{\tikz[baseline=-0.5ex]{\fill (0,0) arc (90:270:.6ex);}}{#1}}}
-\newcommand{\rsemicircfilled}[1]{\mathclose{\scalerel*{\tikz[baseline=-0.5ex]{\fill (0,0) arc (90:-90:.6ex);}}{#1}}}
 
 % Raccourcis type [A]
+
 \newcommand{\quotient}[1]{\llbracket#1\rrbracket}          % creux
-\newcommand{\quasiquotient}[1]{\lsemicircfilled{#1}#1\rsemicircfilled{#1}} % plein
 
 
 
@@ -84,8 +64,7 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
 
 \newcommand{\A}{\mathcal{A}}
 \newcommand{\B}{\mathcal{B}}
-\newcommand{\norm}[1]{\lVert #1 \rVert}
-\newcommand{\ctrct}[1]{\llbracket #1 \rrbracket}
+\newcommand{\norm}[1]{| #1 |}
 
 \begin{document}
 \title{Chart semantics for regular expressions:\\characterization and axiomatization}
@@ -757,16 +736,21 @@ We introduce a \emph{normalization} operation that enforces that.
   
 
 \begin{definition}
-The \emph{normalization} of a network~$C$ is obtained as follows:
+The \emph{normalization} of a network~$C$, denoted~$\norm{C}$, is the network obtained as follows:
 \begin{itemize}
-    \item for each initial state $I$, if  it has incoming transitions, 
-    add a fresh state with the same derivatives, and a $1$-labelled transition from it to the former initial state, 
-    add a transition labelled~$n$ from the new initial state to it;
-    \item add a fresh final state, called the \emph{sink}, which becomes the unique final state with no extensions;
-    \item for each former final state and each of its extensions~$n$, 
-    add a transition labelled~$n$ from that state to the sink.
+    \item for each index $i$, if the $i$-th initial state has incoming transitions, add   a fresh state which becomes the new $i$-th initial state and add a $1$-transition from this new state to the former one,
+    \item add a fresh state, called the \emph{sink}, which becomes the unique final state,
+    \item for each former final state, add a $1$-transition to the sink.
 \end{itemize}
-The obtained network is denoted by $\llbracket C\rrbracket$, 
+\end{definition}
+
+
+
+
+\begin{definition}
+Let $\varphi$ be a function of domain $\{1,\dots,n\}$.
+We define the network $N(\varphi)$ at follows: it has $n$ distinct initial states denoted $1,\dots,n$ and a single final state. The state named $i$ is the $i$-th initial state. For each $i\in\{1,\dots,n\}$ there is exactly one transition, labelled $\varphi(i)$, from state $i$ to the final state.
+
 \end{definition}
 
 \begin{definition}
@@ -911,11 +895,10 @@ As a consequence, we show that a chart is reducible to two expressions, then the
   $$ M \twoheadrightarrow^* e\ \text{ and }\  M\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f.$$\label{cor:confluence}
 \end{corollary}
 
-% \section{Reducing traps}
 
-% \begin{definition} Let $q$ be a state of a chart $C$.
-%   The $q$-\emph{trap} of a chart $C$ is the sub-chart of $C$ whose initial state is $q$, whose set of states is the set of states reachable from $q$ and whose final states are the final states of $C$ reachable from $q$.
-% \end{definition}
+
+
+
 
 \section{Adding new initial states}
 
@@ -931,12 +914,7 @@ The \emph{bridge application} of $B$ to $M$, denoted $B\triangleright M$, is the
 \end{definition}
 
 
-%   \begin{proposition} 
-%   Let $B_1$ and $B_2$ be two bridges of a chart $M$ and $N$ a normal chart. 
-%   If $(B_1+B_2)\triangleright M \twoheadrightarrow^* N$, then:
-%   $$B_1\triangleright M \twoheadrightarrow^* N_1,\quad  B_2\triangleright M \twoheadrightarrow^* N_2\quad  \text{ and } \quad N=N_1\oplus N_2$$
-%   for some normal charts $N_1$ and $N_2$.
-% \end{proposition}
+
 
 \begin{lemma}
   Let $M$ and $M'$ be a charts and $B$ a bridge for $M$. We have:
