@@ -65,6 +65,14 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
 \newcommand{\A}{\mathcal{A}}
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\norm}[1]{| #1 |}
+\newcommand{\milner}[1]{\mathcal{M}(#1)}
+\newcommand{\normalForm}[1]{\mathcal{N}(#1)}
+
+
+\definecolor{darkred}{rgb}{0.85, 0.1, 0.2}
+\definecolor{darkblue}{rgb}{0.2, 0.2, 0.75}
+\definecolor{darkgreen}{rgb}{0.2, 0.6, 0.2}
+
 
 \begin{document}
 \title{Chart semantics for regular expressions:\\characterization and axiomatization}
@@ -72,11 +80,13 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
 \date{\today}
 \maketitle  
 \begin{abstract}
-We define a Milner chart, a transition structure naturally associated with a regular expression. We provide a rewriting-based characterization of these charts and establish a precise correspondence between bisimilarity of Milner charts and equivalence in Milner’s equational system for regular expressions. 
+We introduce Milner charts, a class of transition structures naturally associated with regular expressions. Our main contributions are: (i) a rewriting-based characterization that identifies Milner charts among all charts, and (ii) a completeness result establishing that bisimilarity of expressions coincides with their provable equivalence in Milner's equational axiomatization. 
 \end{abstract}
 \section{Introduction}
 
 \section{Preliminaries}
+
+This section introduces the main concepts used throughout the paper: regular expressions and their chart-based semantics, bisimulation equivalence between charts, and Milner's equational proof system for reasoning about expression equivalence.
 
 \subsection{Regular Expressions}
 \begin{definition}
@@ -121,10 +131,12 @@ and its finality is the function $\chi$ defined as follows:
 \]
 \end{definition}
 
+
+
 \begin{remark}
 When clear from context or irrelevant, we omit the alphabet of a chart.
 We sometimes define a chart by specifying the derivatives of its states rather than its 
-transitions set; this is equivalent.
+transitions set; this is equivalent. As usual, we shall not distinguish between isomorphic charts. 
 \end{remark}
 
 \subsection{Milner Charts}
@@ -158,25 +170,25 @@ Finally, states not reachable from~$s$ are removed.
 % états (vertical compact)
 \node (label) at (0,2) {$C$};
 \node[final, label={[lab]left:$ $}] (i1) at (0,1.0) {};
-\node[ghost] (q11) at (0,0.3) {};
-\node[ghost] (q12) at (0.5,-0.2) {};
+\node[state] (q11) at (0,0.3) {};
+\node[state] (q12) at (0.5,-0.2) {};
 \node[final, label={[lab]below:$ $}]  (f11) at (-0.6,-0.9) {};
 \node[final, label={[lab]below:$ $}] (f12) at (1.2,-0.9) {};
 
 % transitions abstraites (patron 1)
 \draw[->] (0,1.7) -- (i1.north);
-%\draw[gray!60,->] (i1) -- (q11);
-\draw[->, double] (i1) -- node[lab,right,pos=0.45] {$ $} (q11);
-\draw[gray!60,->] (q11) to (q12);
-\draw[gray!60,->] (q12) -- (f11);
-\draw[gray!60,->] (q12) -- (f12);
-\draw[gray!60,->] (q11) to (f11);
+%\draw[->] (i1) -- (q11);
+\draw[->] (i1) -- node[lab,right,pos=0.45] {$ $} (q11);
+\draw[->] (q11) to (q12);
+\draw[->] (q12) -- (f11);
+\draw[->] (q12) -- (f12);
+\draw[->] (q11) to (f11);
 
 \begin{scope}[shift={(-.7,0)}]
 
 \node[state, label={[lab]left:$ $}] (i2) at (4,1.0) {};
-\node[ghost] (p21) at (3.55,0.2) {};
-\node[ghost] (p22) at (4.4,0.2) {};
+\node[state] (p21) at (3.55,0.2) {};
+\node[state] (p22) at (4.4,0.2) {};
 \node[final, label={[lab]below:$ $}]  (f21) at (3,-0.9) {};
 \node[final, label={[lab]below:$ $}] (f22) at (5,-0.9) {};
 
@@ -184,13 +196,13 @@ Finally, states not reachable from~$s$ are removed.
 % transitions abstraites (patron 2)
 
 \draw[->] (4,1.7) -- (i2.north);
-\draw[->, double] (i2) -- node[lab,left,pos=0.45] {$ $} (p21);
-\draw[->, dashed] (i2) -- node[lab,right,pos=0.45] {$ $} (p22);
-\draw[gray!60,->] (p21) -- (f21);
-\draw[gray!60,->] (p22) -- (f22);
-\draw[gray!60,->] (p21) to (f22);
-\draw[gray!60,->] (p22) to (f21);
-\draw[gray!60,->] (f22) to[in = 20, out=50]  (i2);
+\draw[->] (i2) -- node[lab,left,pos=0.45] {$ $} (p21);
+\draw[->] (i2) -- node[lab,right,pos=0.45] {$ $} (p22);
+\draw[->] (p21) -- (f21);
+\draw[->] (p22) -- (f22);
+\draw[->] (p21) to (f22);
+\draw[->] (p22) to (f21);
+\draw[->] (f22) to[in = 20, out=50]  (i2);
 \end{scope}
 \begin{scope}[shift={(5,0)}]
 
@@ -201,37 +213,37 @@ Finally, states not reachable from~$s$ are removed.
 %\node[final, label={[lab]above:$ $}] (i1) at (0,1.0) {};
 
 \begin{scope}[shift={(1,0)}]
-\node[ghost] (q11a) at (0,0.3) {};
-\node[ghost] (q12a) at (0.5,-0.2) {};
+\node[state] (q11a) at (0,0.3) {};
+\node[state] (q12a) at (0.5,-0.2) {};
 \node[final, label={[lab]below:$ $}]  (f11a) at (-0.6,-0.9) {};
 \node[final, label={[lab]below:$ $}] (f12a) at (1.2,-0.9) {};
 
 % transitions abstraites (patron 1)
-%\draw[gray!60,->, double] (i1) -- (q11);
-\draw[gray!60,->] (q11a) to (q12a);
-\draw[gray!60,->] (q12a) -- (f11a);
-\draw[gray!60,->] (q12a) -- (f12a);
-\draw[gray!60,->] (q11a) to (f11a);
+%\draw[->] (i1) -- (q11);
+\draw[->] (q11a) to (q12a);
+\draw[->] (q12a) -- (f11a);
+\draw[->] (q12a) -- (f12a);
+\draw[->] (q11a) to (f11a);
 \end{scope}
 %------------ Boîte 2 (C2) -----------------
 %\node[box] (B2) at (6,0) {};
 
 % états
 \node[state, label={[lab]above:$ $}] (i2a) at (4,1.0) {};
-\node[ghost] (p21a) at (3.55,0.2) {};
-\node[ghost] (p22a) at (4.4,0.2) {};
+\node[state] (p21a) at (3.55,0.2) {};
+\node[state] (p22a) at (4.4,0.2) {};
 \node[final, label={[lab]below:$ $}]  (f21a) at (3,-0.9) {};
 \node[final, label={[lab]below:$ $}] (f22a) at (5,-0.9) {};
 
 
 % transitions abstraites (patron 2)
-\draw[gray!60,->, double] (i2a) -- (p21a);
-\draw[gray!60,->, dashed] (i2a) -- (p22a);
-\draw[gray!60,->] (p21a) -- (f21a);
-\draw[gray!60,->] (p22a) -- (f22a);
-\draw[gray!60,->] (p21a) to (f22a);
-\draw[gray!60,->] (p22a) to (f21a);
-\draw[gray!60,->] (f22a) to[in = 20, out=50] (i2a);
+\draw[->] (i2a) -- (p21a);
+\draw[->] (i2a) -- (p22a);
+\draw[->] (p21a) -- (f21a);
+\draw[->] (p22a) -- (f22a);
+\draw[->] (p21a) to (f22a);
+\draw[->] (p22a) to (f21a);
+\draw[->] (f22a) to[in = 20, out=50] (i2a);
 
 %------------ Nouvel état initial i (somme) --------------
 \node (label) at (1.9,2) {$C + D$};
@@ -241,10 +253,10 @@ Finally, states not reachable from~$s$ are removed.
 
 % Transitions de i vers les cibles des transitions de i1 et i2
 % (elles reproduisent: (i,a,q) si (i1,a,q) ou (i2,a,q) étaient dans Δ1 ou Δ2)
-\draw[->, double] (inew) -- node[lab,above,pos=0.55] {$ $} (q11a);
+\draw[->] (inew) -- node[lab,above,pos=0.55] {$ $} (q11a);
 %\draw[->] (inew) -- node[lab,above,pos=0.55] {$b$} (q12);
-\draw[->, double] (inew) -- node[lab,below,pos=0.45] {$ $} (p21a);
-\draw[->, dashed] (inew) -- node[lab,above,pos=0.45] {$ $} (p22a);
+\draw[->] (inew) -- node[lab,below,pos=0.45] {$ $} (p21a);
+\draw[->] (inew) -- node[lab,above,pos=0.45] {$ $} (p22a);
 
 \end{scope}
 
@@ -277,12 +289,12 @@ and unreachable states are removed.
 
 % ======================= C1 (gauche->droite) =======================
 \begin{scope}[shift={(-6,0)},rotate=-90]
-  \node (labC1) at (-2.5,0) {$C$};
+  \node (labC1) at (-2.1,0) {$C$};
 
   % états C1
   \node[state] (i1) at (-1.2,0) {};
-  \node[ghost] (x1) at (-0.2,1) {};
-  \node[ghost] (x2) at (-0.2,-1) {};
+  \node[state] (x1) at (-0.2,1) {};
+  \node[state] (x2) at (-0.2,-1) {};
   \node[final] (f1) at (1.0,1) {};
   \node[final] (f1p) at (1.0,-1) {};
 
@@ -290,21 +302,21 @@ and unreachable states are removed.
   \draw[->] ([xshift=-15pt]i1.north) -- (i1.north);
 
   % transitions internes (gris)
-  \draw[gray!60,->] (i1) -- (x1);
-  \draw[gray!60,->] (i1) -- (x2);
-  \draw[gray!60,->] (x1) -- (f1);
-  \draw[gray!60,->] (x2) -- (f1p);
-  \draw[gray!60,->] (f1p) to (x1);
+  \draw[->] (i1) -- (x1);
+  \draw[->] (i1) -- (x2);
+  \draw[->] (x1) -- (f1);
+  \draw[->] (x2) -- (f1p);
+  \draw[->] (x1) to (f1p);
 \end{scope}
 
 % ======================= C2 (gauche->droite) =======================
 \begin{scope}[shift={(-2,0)}, ,rotate=-90]
-  \node (labC2) at (-2.5,0) {$D$};
+  \node (labC2) at (-2.1,0) {$D$};
 
   % états C2
   \node[state] (i2) at (-1.2,0) {};
-  \node[ghost] (y1) at (-0.2,1) {};
-  \node[ghost] (y2) at (-0.2,-1) {};
+  \node[state] (y1) at (-0.2,1) {};
+  \node[state] (y2) at (-0.2,-1) {};
   \node[final] (g1) at (1.0,1) {};
   \node[final] (g2) at (1.0,-1) {};
 
@@ -312,59 +324,60 @@ and unreachable states are removed.
   \draw[->] ([xshift=-15pt]i2.north) -- (i2.north);
 
   % sorties explicites de i2
-  \draw[->, dashed] (i2) -- (y1) node[midway,above,lab] {$ $};
-  \draw[->, double] (i2) -- (y2) node[midway,below,lab] {$ $};
+  \draw[->] (i2) -- (y1) node[midway,above,lab] {$ $};
+  \draw[->] (i2) -- (y2) node[midway,below,lab] {$ $};
 
   % transitions internes (gris)
-  \draw[gray!60,->] (y1) -- (g1);
-  \draw[gray!60,->] (y2) -- (g2);
-  \draw[gray!60,->] (y1) to (g2);
-  \draw[gray!60,->] (y2) to (g1);
+   \draw[->] (y1) -- (y2);
+  \draw[->] (y1) -- (g1);
+  \draw[->] (y2) -- (g2);
+  \draw[->] (y1) to (g2);
+  \draw[->] (y2) to (g1);
 \end{scope}
 \begin{scope}[shift={(2,0)}, rotate=-90]
-    \node (labSeq) at (-2.5,0) {$C \cdot D$};
+    \node (labSeq) at (-2.1,0) {$C \cdot D$};
 
 % copie visuelle de C1 (à gauche)
 \node[state] (i1s) at (-1.2,0) {};
-\node[ghost] (xs1) at (-0.2,1) {};
-\node[ghost] (xs2) at (-0.2,-1) {};
+\node[state] (xs1) at (-0.2,1) {};
+\node[state] (xs2) at (-0.2,-1) {};
 \node[state] (fs1) at (1.0,1) {};
 \node[state] (fs2) at (1.0,-1) {};
 
 
 % copie visuelle de C2 (à droite)
 %\node[state] (i2s) at (1.0,0) {}; % i2 lui-même n'est pas final
-\node[ghost] (ys1) at (2.2,1) {};
-\node[ghost] (ys2) at (2.2,-1) {};
+\node[state] (ys1) at (2.2,1) {};
+\node[state] (ys2) at (2.2,-1) {};
 \node[final] (gs1) at (3.4,1) {};
 \node[final] (gs2) at (3.4,-1) {};
 
 % flèche initiale globale: i1
-\draw[->] ([xshift=-10pt]i1s.north) -- (i1s.north);
+\draw[->] ([xshift=-15pt]i1s.north) -- (i1s.north);
 
 % Δ1 (gris)
-\draw[gray!60,->] (i1s) -- (xs1);
-\draw[gray!60,->] (i1s) -- (xs2);
-\draw[gray!60,->] (xs1) -- (fs1);
-\draw[gray!60,->] (xs2) -- (fs2);
-\draw[gray!60,->] (xs1) to (fs2);
+\draw[->] (i1s) -- (xs1);
+\draw[->] (i1s) -- (xs2);
+\draw[->] (xs1) -- (fs1);
+\draw[->] (xs2) -- (fs2);
+\draw[->] (xs1) to (fs2);
 
 % Δ2 (gris)
-%\draw[gray!60,->, dashed] (i2s) -- (ys1);
-%\draw[gray!60, ->, double] (i2s) -- (ys2);
-\draw[gray!60,->] (ys1) -- (gs1);
-\draw[gray!60,->] (ys1) -- (ys2);
-\draw[gray!60,->] (ys2) -- (gs2);
-\draw[gray!60,->] (ys1) to (gs2);
-\draw[gray!60,->] (ys2) to (gs1);
+%\draw[->, dashed] (i2s) -- (ys1);
+%\draw[ ->, double] (i2s) -- (ys2);
+\draw[->] (ys1) -- (gs1);
+\draw[->] (ys1) -- (ys2);
+\draw[->] (ys2) -- (gs2);
+\draw[->] (ys1) to (gs2);
+\draw[->] (ys2) to (gs1);
 
 % Règle de concaténation: copier sorties de i2 sur chaque f∈F1
 % Utilisation de bend pour éviter croisements
-\draw[->, dashed] (fs1) to[bend left=0] node[lab,above] {$ $} (ys1);
-\draw[->, double] (fs1) to[bend left=0] node[lab,below] {$ $} (ys2);
+\draw[->] (fs1) to[bend left=0] node[lab,above] {$ $} (ys1);
+\draw[->] (fs1) to[bend left=0] node[lab,below] {$ $} (ys2);
 
-\draw[->, dashed] (fs2) to[bend right=0] node[lab,below] {$ $} (ys1);
-\draw[->, double] (fs2) to[bend right=0] node[lab,above] {$ $} (ys2);
+\draw[->] (fs2) to[bend right=0] node[lab,below] {$ $} (ys1);
+\draw[->] (fs2) to[bend right=0] node[lab,above] {$ $} (ys2);
 
 \end{scope}
 \end{tikzpicture}
@@ -380,7 +393,7 @@ Unreachable states are then removed.
 \end{definition}
 
 
-\begin{example} Example of ietration of a chart. 
+\begin{example} Example of a chart iteration. 
 \begin{center}
 \begin{tikzpicture}[
   >=Latex,
@@ -397,23 +410,23 @@ Unreachable states are then removed.
 
   % états C
   \node[state] (i1) at (0,1.4) {};
-  \node[ghost] (q1) at (-0.7,-0) {};
-  \node[ghost] (q2) at ( 0.6,-0) {};
+  \node[state] (q1) at (0,-0) {};
+  \node[state] (q2) at ( 0.87,-0) {};
   \node[final] (f1) at (-1.2,-1.4) {};
-  \node[final] (f2) at ( 1.2,-1.4) {};
+  \node[final] (f2) at ( 1.7,-1.4) {};
 
   % flèche initiale
   \draw[->] (0,2.1) -- (i1.north);
 
   % sorties explicites de i1
-  \draw[->, dashed] (i1) -- (q1);
-  \draw[ ->, double ] (i1) -- (q2);
+  \draw[->, darkred] (i1) -- (q1);
+  \draw[ ->] (i1) -- (q2);
 
   % transitions internes (gris)
-  \draw[gray!60,->] (q1) to (f1);
-  \draw[gray!60,->] (q2) to (f2);
-  \draw[gray!60,->] (q1) to (f2);
-  \draw[gray!60,->] (f1) to[bend left, in=135, out =40]  (i1);
+  \draw[->] (q1) to (f1);
+  \draw[->] (q2) to (f2);
+  \draw[->] (q1) to (f2);
+  \draw[->] (f1) to[bend left, in=135, out =40]  (i1);
 \end{scope}
 
 % ======================= C* (vertical) =======================
@@ -421,41 +434,42 @@ Unreachable states are then removed.
   %\node (labS) at (0,2.8) {$C^{\!*}$};
 
   % nouvel initial i (final aussi)
-  \node[final] (i)  at (1,1.4) {};
+  \node[final] (i)  at (1.2,1.4) {};
 
-  \node[state] (i1s) at (0,1.4) {};
-  \node[ghost] (r1) at (-0.7,-0) {};
-  \node[ghost] (r2) at ( 0.6,-0) {};
+    \node[state] (i1s) at (0,1.4) {};
+  \node[state] (r1) at (0,-0) {};
+  \node[state] (r2) at ( 1.2,-0) {};
   \node[final] (g1) at (-1.2,-1.4) {};
-  \node[final] (g2) at ( 1.2,-1.4) {};
+  \node[final] (g2) at ( 2.5,-1.4) {};
+
 
 
   % flèche initiale globale
-  \draw[->] (1,2.1) -- (i.north);
+  \draw[->] (1.2,2.1) -- (i.north);
 
   % Δ (gris) : transitions internes de C conservées
-  \draw[gray!60,->, dashed] (i1s) -- (r1);
-  \draw[gray!60,->, double] (i1s) -- (r2);
-    \draw[dashed,->] (i) -- (r1);
-  \draw[double , ->] (i) -- (r2);
-  \draw[gray!60,->] (r1)  to (g1);
-  \draw[gray!60,->] (r2)  to  (g2);
-  \draw[gray!60,->] (r1)  to  (g2);
-  \draw[gray!60,->] (g1)  to[bend left, in=135, out =40]  (i1s);
+  \draw[->,darkred] (i1s) -- (r1);
+  \draw[->] (i1s) -- (r2);
+    \draw[darkred, ->] (i) -- (r1);
+  \draw[->] (i) -- (r2);
+  \draw[->] (r1)  to (g1);
+  \draw[->] (r2)  to  (g2);
+  \draw[->] (r1)  to  (g2);
+  \draw[->] (g1)  to[bend left, in=135, out =40]  (i1s);
   % Ajouts pour l'étoile :
   % 1) Depuis i, recopier les sorties de i1
  % \draw[->] (i) to node[midway,above,lab] {$ $} (r1);
-  %\draw[->, dashed] (i) to node[midway,above,lab] {$$} (r2);
+  %\draw[->,darkred] (i) to node[midway,above,lab] {$$} (r2);
 
   % 2) Depuis chaque f \in F, recopier les sorties de i1 (itération)
   %    ici F = {g1, g2}
-  \draw[->, dashed ] (g1) to[bend left=30]  node[midway,left,lab]  {$ $} (r1);
-\draw[->, double ] (g1) to[bend left=30] node[midway,above,lab] {$ $} (r2);
+  \draw[->,darkred ] (g1) to[bend left=30]  node[midway,left,lab]  {$ $} (r1);
+\draw[->] (g1) to[bend right=30] node[midway,above,lab] {$ $} (r2);
 
 
-\draw[->, dashed]
-    (g2) to[bend right=18] node[midway,right,lab] {$ $} (r1);
-\draw[->, double]
+\draw[->,darkred]
+    (g2) to[bend left=18] node[midway,right,lab] {$ $} (r1);
+\draw[->]
     (g2) to[bend right=40] node[midway,above,lab] {$ $} (r2);
 \end{scope}
 
@@ -476,12 +490,12 @@ The \emph{Milner chart} of an expression~$e$ over the alphabet $\Sigma$, denoted
 where  $a \in \Sigma$:
 \[
 \begin{array}{rclcrclcrcl}
-M(0) & = & \mathbf{0} &  &
-M(1) & = & \mathbf{1} &  &
-M(a) & = & \mathbf{a} \\[4pt]
-M(e+f) & = & M(e)+M(f) & &
-M(e\cdot f) & = & M(e)\cdot M(f) & &
-M(e^*) & = & M(e)^*
+\milner{0} &\hspace{-8pt}=\hspace{-8pt}& \mathbf{0} & &
+\milner{1} &\hspace{-8pt}=\hspace{-8pt}& \mathbf{1} &  &
+\milner{a} &\hspace{-8pt}=\hspace{-8pt}& \mathbf{a} \\[4pt]
+\milner{e+f} &\hspace{-8pt}=\hspace{-8pt}& \milner{e}+\milner{f} & &
+\milner{e\cdot f} &\hspace{-8pt}=\hspace{-8pt}& \milner{e}\cdot\milner{f} & &
+\milner{e^*} &\hspace{-8pt}=\hspace{-8pt}& \milner{e}^*
 \end{array}
 \]
 \end{definition}
@@ -494,7 +508,7 @@ M(e^*) & = & M(e)^*
 \end{definition}
 
 \begin{proposition}
-For every regular expression $e$, $M(e)$ is rooted.
+For every regular expression $e$, $\milner{e}$ is rooted.
 \end{proposition}
 
 \subsection{Bisimulation}
@@ -520,7 +534,7 @@ We say that $C$ and $D$ are \emph{bisimilar}, and write $C \sim D$, if there ini
 \subsection{Milner's Axiomatization}
 
 
-\begin{definition} For every regular expression $e$, we write $e\Downarrow$ if the initial state of $M(e)$ is final. We write $e\Uparrow$ otherwise.
+\begin{definition} For every expression $e$, we say that $e$ is \emph{final}, and write $e\Downarrow$, if the initial state of $\milner{e}$ is final. We write $e\Uparrow$ otherwise.
     \end{definition}
 
 
@@ -588,7 +602,9 @@ We work with a slightly broader class of structures,
 called \emph{networks}, which extend ordinary charts by allowing multiple inputs.  
 The rewriting system will be defined on these networks.
 
-
+\begin{definition}
+  A \emph{network} has the same data as a chart, but instead of a single initial state, it has a list of initial states.
+\end{definition}
 
 \begin{definition} We consider the rewriting rules of Figure~\ref{fig:rewriting-rules}, 
 which transform networks over~$\Sigma^*$ into networks over~$\Sigma^*$. 
@@ -721,6 +737,63 @@ We write~$\twoheadrightarrow$ for the union of all these rewriting rules.\end{de
             \draw[arr] (sp1) to node[left, yshift=-6pt, midway ] {$1$} (c);
             \draw[arr] (spn) to node[right, below ] {$1$} (c);
             \end{scope}
+        \end{tikzpicture}\\[25pt]
+          \textbf{Unproductivity elimination}  & &\textbf{Factorization} \\[20pt]
+            \begin{tikzpicture}[node distance=1.8cm, scale=1.0, every node/.style={transform shape}]
+            % Left side (before)
+            \node[circ] (c) at (0,0) {};
+            \draw[arr] ([yshift=6mm]c.north) -- node[left,lab] {} (c.north);  
+               \node[state] (q1) at (-1,-1) {}; 
+            \node (q) at (-1,0) {$\vdots$};  
+            \node[state] (qn) at (-1.5,-1) {};
+            \node[state] (p1) at (1,.5) {};  
+            \node (p) at (1,0) {$\vdots$};  
+            \node[state] (pn) at (1,-.6) {};      
+            \draw[arr] (c) to node[above] {$f_1\ $} (p1);
+            \draw[arr] (c) to node[below, midway] {$\tiny{f_m}$} (pn);
+            \draw[arr] (q1) to node[above, midway] {$\ e_1$} (c);
+            \draw[arr] (qn) to node[below, midway] {$\ \ e_n $} (c);
+            % Arrow between rules
+            \node (i) at (1.5,0) {$\twoheadrightarrow$};
+            %\node[below=1.2cm of i] {Zero rule};
+            % Right side (after)
+        \end{tikzpicture}&&           \begin{tikzpicture}[scale=1.0, every node/.style={transform shape}]
+            % Left side (before)
+
+            \begin{scope}[shift={(-.5,0)}]
+          %  \node[] (p1) at (0.5,0.5) {$p_1$};
+            \node[state] (p1) at (0.5,0) {};
+               \node[state] (pn) at (2.9,0) {};
+            \node[state] (q1) at (1,-2.8) {};
+            \node[state] (q2) at (2.5,-2.8) {};
+            \node (dots) at (1.7,-2.8) {$\dots$};
+            \node (dots) at (1.7,0) {$\dots$};
+            \node (ad) at (1.1,-1.4) {\tiny $\dots$};
+            \node (ad) at (2.4,-1.4) {\tiny $\dots$};
+            \draw[arr] (p1) to node[left, near start] {$e_1$} (q1);
+            \draw[arr] (p1) to node[right, near start] {$e_n$} (q2);
+            \draw[arr] (pn) to node[left, near start] {$e_1$} (q1);
+            \draw[arr] (pn) to node[right, near start] {$e_n$} (q2);
+            \end{scope}
+            % Arrow between rules
+            \node (i) at (3.2,-1.4) {$\twoheadrightarrow_{\mathsf{f}}$};
+           % \node[below=1.4cm of i] {Factorization};
+
+            % Right side (after)
+            % \pgfmathsetmacro{\shift}{.5}
+            \begin{scope}[shift={(3.5,0)}]
+                \node[state] (sp1) at (.5,0) {};
+                \node[state] (spn) at (2.5,0) {};
+                \node[state] (sq1) at (0.8,-2.8) {};
+                \node[state] (sq2) at (2.5,-2.8) {};
+                \node[circ] (c) at (1.5,-1.4) {};
+                \node (sdots) at (1.7,-2.8) {$\dots$};
+            \node (sdots) at (1.7,0) {$\dots$};
+            \draw[arr] (c) to node[left] {$e_1$} (sq1);
+            \draw[arr] (c) to node[right] {$e_n$} (sq2);
+            \draw[arr] (sp1) to node[left, yshift=-6pt, midway ] {$1$} (c);
+            \draw[arr] (spn) to node[right, below ] {$1$} (c);
+            \end{scope}
         \end{tikzpicture}\\
 \end{tabular}
 %}
@@ -735,74 +808,102 @@ We introduce a \emph{normalization} operation that enforces that.
 
   
 
-\begin{definition}
-The \emph{normalization} of a network~$C$, denoted~$\norm{C}$, is the network obtained as follows:
+\begin{definition} Let $C$ be a network with initial state list $(I_1, \ldots, I_n)$.
+The \emph{normalization} of~$C$, denoted~$\norm{C}$, is the network obtained as follows: 
 \begin{itemize}
-    \item for each index $i$, if the $i$-th initial state has incoming transitions, add   a fresh state which becomes the new $i$-th initial state and add a $1$-transition from this new state to the former one,
-    \item add a fresh state, called the \emph{sink}, which becomes the unique final state,
-    \item for each former final state, add a $1$-transition to the sink.
+    \item Add a list of fresh states $(J_1, \ldots, J_n)$ forming the new initial state list.  
+    \item Add a $1$-transition from $J_i$ to $I_i$, for each $i\in \{1,\ldots,n\}$.
+    \item Add a fresh state, called the \emph{sink}, which becomes the unique final state.
+    \item For each former final state, add a $1$-transition to the sink.
 \end{itemize}
 \end{definition}
 
-
-
-
-\begin{definition}
-Let $\varphi$ be a function of domain $\{1,\dots,n\}$.
-We define the network $N(\varphi)$ at follows: it has $n$ distinct initial states denoted $1,\dots,n$ and a single final state. The state named $i$ is the $i$-th initial state. For each $i\in\{1,\dots,n\}$ there is exactly one transition, labelled $\varphi(i)$, from state $i$ to the final state.
-
-\end{definition}
-
-\begin{definition}
-For every regular expressions $e$, we let ${N}(e)$ be the chart:
+\begin{example} Example of a Network with two initial states, one of them has incoming transitions, and two final states
 \begin{center}
-        \begin{tikzpicture}[
-      >=Latex,
-      state/.style={circle, draw, inner sep=1.6pt},
-      ghost/.style={circle, draw, inner sep=1.2pt, gray!60},
-      final/.style={state, double, double distance=1pt},
-      lab/.style={font=\small},
-      every edge quotes/.style={auto, text=black, font=\small}
-    ]
+\begin{tikzpicture}[>=Latex,baseline=(p1.base),
+    state/.style={circle,draw,inner sep=1.6pt},           
+      final/.style={state,double,double distance=1pt},  
+      lab/.style={font=\small}]
+      % initial states (sans étiquettes)
+      \node[state] (p1) at (0,0) {};
+      \node[state] (p2) at (2,0) {};
 
-            % First chart
-            \node[state] (p1) at (0,0) {};
-            \node[final] (f1) at (2,0) {};
-            \draw[arr] (p1) to node[above] {$e$} (f1);
-            % Incoming and outgoing arrows (horizontal)
-            \draw[arr] ([xshift=-5mm]p1.west) to (p1);
-        \end{tikzpicture}
-    \end{center}
-A chart $M$ is \emph{reducible} to an expression $e$, written $M\twoheadrightarrow^* e$, if:
-     $$\llbracket M\rrbracket \twoheadrightarrow^* N(e).$$
+      \node[state] (c) at (1,-1.5) {};
+      % état final (sans étiquette)
+      \node[final] (q1) at (0,-3) {};   
+      \node[final] (q2) at (2,-3) {};
+      % flèches entrantes verticales numérotées 1..n
+      \draw[->] ([yshift=6mm]p1.north) -- node[left,lab] {$1$} (p1.north);
+      \draw[->] ([yshift=6mm]p2.north) -- node[left,lab] {$2$} (p2.north);
+      % transitions étiquetées par phi(i)
+      \draw[arr] (p1) to node[left,lab, pos=0.4]  {$a$} (c);
+      \draw[arr] (p2) to node[right,lab, pos=0.4] {$b$} (c);
+
+      \draw[arr] (c) to node[left,lab, pos=0.4]  {$a$} (q1);
+      \draw[arr] (c) to node[right,lab, pos=0.4] {$c$} (q2);
+      % transition entrante vers p1
+      \draw[->] (c) to node[above,lab, bend right] {$a$} (p1);
+\end{tikzpicture}
+\hspace{2cm}
+\end{center}
+\end{example}
+
+
+
+
+
+\begin{definition} Let $E=(e_1,\dots,e_n)$ be a list of regular expressions. The \emph{network} $\mathcal{N}(E)$ is defined as follows:
+  \begin{center}
+  \begin{tikzpicture}[>=Latex,baseline=(p1.base),
+    state/.style={circle,draw,inner sep=1.6pt},
+    final/.style={state,double,double distance=1pt},
+    lab/.style={font=\small}]
+    % initial states (sans étiquettes)
+    \node[state] (p1) at (0.5,0) {};
+    %\node[state] (p2) at (1.2,0) {};
+    \node (dots) at (2,0) {$\cdots$};
+    \node[state] (pn) at (3.5,0) {};
+    % état final (sans étiquette)
+    \node[final] (q) at (2,-1.2) {};
+    % flèches entrantes verticales numérotées 1..n
+    \draw[->] ([yshift=6mm]p1.north) -- node[left,lab] {$1$} (p1.north);
+    %\draw[->] ([yshift=6mm]p2.north) -- node[left,lab] {$2$} (p2.north);
+    \draw[->] ([yshift=6mm]pn.north) -- node[left,lab] {$n$} (pn.north);
+    % transitions étiquetées par phi(i)
+    \draw[arr] (p1) to node[left,lab, pos=0.4,xshift=-2mm]  {$e_1$} (q);
+    %\draw[arr] (p2) to node[left,lab, pos=0.4]  {$\varphi(2)$} (q);
+    \draw[arr] (pn) to node[right,lab, pos=0.4, xshift=2mm] {$e_n$} (q);
+  \end{tikzpicture}
+  \end{center}
 \end{definition}
+
+
 
 \begin{definition}
-    A regular expression is \emph{star-safe} if in every sub-expression of the form $f^*$, we have $f\Uparrow$.
+Let $N$ be a network and let $E$ be a list of regular expressions. If $\norm{N} \twoheadrightarrow^* \mathcal{N}(E)$, we say $N$ \emph{reduces} to $E$ and write:
+\[N \twoheadrightarrow^* E.\]
+When $N$ is a chart, and hence $E$ reduces to a single element $e$, 
+we simply write:
+\[
+N \twoheadrightarrow^* e.
+\]
 \end{definition}
+
+
+
+\begin{definition}
+A regular expression is \emph{star-safe} if every sub-expression $f^*$ satisfies $f\Uparrow$.
+\end{definition}
+
 
 \begin{proposition}
-  Every expression is equivalent to a star-safe one.
+  Every expression is provably equivalent to a star-safe one.
     ~\label{prop:every-expression-is-equivalent-to-a-safe-one}
 \end{proposition}
 
-\begin{proposition} For every star-safe expression $e$, $M(e)$ is reducible to $e$.
+\begin{proposition} For every star-safe expression $e$, $\milner{e}$ reduces to $e$.
     ~\label{prop:Milner-is-reducible}
 \end{proposition}
-
-% \begin{example}
-%     Sur l'utilité de la restriction à one outgoing edge: $M(a(b+c))$, commentaire sur la règle $\twoheadrightarrow_{\mathsf{d}}$.
-%      Si on n'avait pas la restriction à one outgoing edge, on pourrait réduire mais ça ne serait pas 
-%      la bonne sémantique.
-
-%     Sur l'utilité de la factorization. Cette restriction est trop forte. Par exemple on ne pourra pas
-%     réduire $M((a(b+c))^*)$ sans la règle de factorisation.
-
-%     Toutes les chartes ne sont pas réductibles. Donner un exemple bisimilaire a une Milner chart, et un autre pas.
-% \end{example}
-
-
-
 
 
 \begin{lemma} Let $M$ and $N$ be two rooted charts. We have:
@@ -814,85 +915,73 @@ A chart $M$ is \emph{reducible} to an expression $e$, written $M\twoheadrightarr
 
 \section{Labeling Charts}
 
-\begin{definition} Let $M$ be a chart whith a transition relation  $\Delta$. A \emph{labeling} of $M$ is a function 
-$\ell:Q \mapsto Re(\Sigma^*)$ satisfying, for every state $p$:
-\begin{itemize}
-\item $\ell(p)\equiv\underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + \chi(\ell(p)),$
-\item $\chi(p) = \chi(\ell(p) )$.
-\end{itemize}
-The image of the initial state by $\ell$ is called its root. If $M$ has a labeling with root $e$, we write: $$M\models e.$$
-% We say that a chart  is \emph{labelable} if it admits a labeling.
+\begin{definition} Let $N$ be a network with a transition relation  $\Delta$. A \emph{labeling} of $N$ is a function
+$\ell:Q \mapsto Re(\Sigma)$ satisfying, for every state $p$:
+\[\ell(p) \ \equiv \underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + \chi(p)\]
+The image of the initial states list of $N$ by $\ell$ is a list of  expressions called its \emph{interface}. If $N$ admits a labeling with interface $E$, we write \[N\models E.\]
 \end{definition}
 
+\begin{remark} Note that for every network $N$ and list of expressions $E$ we have:
+  \[N\models E\quad \text{iff}\quad [N]\models E.\]
+\end{remark}
 
 
 
+The rewriting rules interact well with the notion of labelability. Indeed, labelability is preserved by the inverse of the reduction relation, and as a corollary we deduce that reducibility implies labelability (Section~\ref{sec:reducible-implies-decorable}).  Labelability is also preserved under reduction (under a safety hypothesis), and a corollary of this is a form of confluence (Section~\ref{sec:confluence-of-rewriting-system}).
 
-
- \subsection{Reducible implies labelable}
-If a chart is reducible to an expression $e$, then it is labelable with root $e$.
- \begin{proposition}~\label{prop:reducible-implies-decorable}
-    For every chart $M$ and expression $e$, we have:
-    $$ M\twoheadrightarrow^* e \quad \Longrightarrow \quad M \models e.$$
- \end{proposition}
-\begin{proof} We show first that labelability is preserved by the converse of $\twoheadrightarrow$:
-     \begin{claim}
-     Let $M$ and $N$ be two charts. We have:
-     $$ M\twoheadrightarrow N \ \text{ and }\ N \models e \quad \Longrightarrow \quad M \models e. $$
-      \end{claim}
+ \subsection{Reducible implies labelable}\label{sec:reducible-implies-decorable}
+   \begin{lemma}
+     Let $M$ and $N$ be two networks. We have:
+     \[ M\twoheadrightarrow N \ \text{ and }\ N \models E \quad \Longrightarrow \quad M \models E. \]
+      \end{lemma}
       \begin{proof}
         By case analysis on the applied rewriting rule.
       \end{proof}
-We conclude by noticing that the chart $N(e)\models e$.
-    \end{proof}
 
-\begin{corollary} For every expression $e$, $M(e)\models e$.~\label{prop:milner-chart-is-decorable}
-~\label{prop:Milner-is-decorable}\end{corollary}
+     By noticing that for every list of expressions $E$, we have
+     $\mathcal{N}(E)\models E$, we obtain the following proposition.
+ \begin{proposition}
+    For every network $N$ and list of expressions $E$, we have:
+    \[ N\twoheadrightarrow^* E \quad \Longrightarrow \quad N \models E.\]~\label{prop:reducible-implies-decorable}~\\[-25pt]
+ \end{proposition}
 
-\subsection{Charts with bisimilar roots are bisimilar}
 
-\begin{proposition} Let $M$ and $N$ be charts and $e$ and $f$ expressions. We have:
-  $$ M\models e,\ \ N\models f \ \text{ and }\ e\sim f \quad \Longrightarrow\quad M\sim N.$$
-\end{proposition}
-\begin{proof} let $\ell$ and $\ell'$ be labelings of $M$ and $N$ with roots $e$ and $f$ respectively.  We show that the relation $R$ between the states of $M$ and $N$ defined as follows:
-  $$ (p,q)\in R \quad \Leftrightarrow \quad \ell(p) \sim \ell'(q), $$
-  is a bisimulation between $M$ and $N$.
-\end{proof}
-If a chart has a labeling with root $e$, then it is bisimilar to $M(e)$.
-\begin{corollary} For every chart $M$ and expression $e$, we have:
-  $$M\models e \quad \Longrightarrow\quad M\sim M(e).$$ 
-\end{corollary}
+% \begin{corollary} For every expression $e$, $\milner{e}\models e$.~\label{prop:milner-chart-is-decorable}
+% ~\label{prop:Milner-is-decorable}\end{corollary}
 
-\subsection{Confluence of the rewriting system}
 
-  \begin{definition}
- We say that a cycle is \emph{final} if all its labels are final. A chart is \emph{safe for reduction} if it has no final cycle.
+
+\subsection{Confluence of the rewriting system}\label{sec:confluence-of-rewriting-system}
+
+  \begin{definition} Let $N$ be a network over regular expressions.
+ A cycle in $N$ is \emph{final} if all its transition labels are final. We say that $N$ is \emph{safe for reduction} if it has no final cycles.
  \end{definition}
 
  \begin{remark} Note that charts over the alphabet $\Sigma$ are safe for reduction.
  \end{remark}
 
-\begin{proposition} Let $M$ be a chart safe for reduction. We have:
-  $$ M \models e\ \text{ and }\  M\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f,$$ for every expressions $e$ and $f$.
-\end{proposition}
- \begin{lemma} Reduction safety is preserved by reduction.\end{lemma}
-We show that reduction preserves the existence of a labeling with the same root.
-  \begin{claim} Let $M$ and $N$ be two charts safe for reduction. We have:
-    $$ M \twoheadrightarrow N \ \text{ and }\ M \models e \quad \Longrightarrow\quad N \models e,$$ for every expression $e$.
-  \end{claim}
+ 
+  \begin{lemma}~\label{lem:stable-by-red} Let $M$ and $N$ be two networks safe for reduction. We have:
+    \[  N \models E  \ \text{ and }\  N \twoheadrightarrow M\quad \Longrightarrow\quad M \models E,\] for every list of expressions $E$.
+  \end{lemma}
 \begin{proof}
   By case analysis on the rewriting rule.
 \end{proof}
+
+
+\begin{proposition} Let $N$ be a network safe for reduction. We have:
+ \[ N \models E\ \text{ and }\  N\twoheadrightarrow^* F\quad \Longrightarrow\quad E\equiv F,\] for every lists of expressions $E$ and $F$.
+\end{proposition}
 \begin{proof} 
-
-%  Notice that $\llbracket C\rrbracket$ has a labeling with root $e$: we label the new initial state by $e$, the new sink by $1$ and label all the other states using the labeling of $C$.~\\
-
-% Since $\llbracket C\rrbracket \twoheadrightarrow^* N(f)$, and  by repeated application of the claim, we deduce that $N(f)$ has a labeling with root $e$.  Thus, we have that $e\equiv (f\cdot 1)\equiv f$.
+By iterating lemma~\ref{lem:stable-by-red}, and noticing that:
+ \[\mathcal{N}(F)\models E\quad \Rightarrow \quad E\equiv F.\]\vspace{-10pt}
 \end{proof}
 
-As a consequence, we show that a chart is reducible to two expressions, then these expressions are equivalent.
-\begin{corollary} Let $M$ be a chart, and $e$ and $f$ be two expressions. We have:
-  $$ M \twoheadrightarrow^* e\ \text{ and }\  M\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f.$$\label{cor:confluence}
+As a consequence, we show a sort of confluence for the rewriting system.
+\begin{corollary} Let $N$ be a network. We have: 
+  \[ N \twoheadrightarrow^* E\ \text{ and }\  N\twoheadrightarrow^* F\quad \Longrightarrow\quad E\equiv F.\]
+  for every lists of expressions $E$ and $F$. 
+  \label{cor:confluence}
 \end{corollary}
 
 
@@ -997,3 +1086,17 @@ V. Antimirov, ``Partial derivatives of regular expressions and finite automaton 
 \end{thebibliography}
 
 \end{document}
+
+\subsection{Charts with bisimilar roots are bisimilar}
+
+\begin{proposition} Let $M$ and $N$ be charts and $e$ and $f$ expressions. We have:
+  $$ M\models e,\ \ N\models f \ \text{ and }\ e\sim f \quad \Longrightarrow\quad M\sim N.$$
+\end{proposition}
+\begin{proof} let $\ell$ and $\ell'$ be labelings of $M$ and $N$ with roots $e$ and $f$ respectively.  We show that the relation $R$ between the states of $M$ and $N$ defined as follows:
+  $$ (p,q)\in R \quad \Leftrightarrow \quad \ell(p) \sim \ell'(q), $$
+  is a bisimulation between $M$ and $N$.
+\end{proof}
+If a chart has a labeling with root $e$, then it is bisimilar to $M(e)$.
+\begin{corollary} For every chart $M$ and expression $e$, we have:
+  $$M\models e \quad \Longrightarrow\quad M\sim M(e).$$ 
+\end{corollary}
