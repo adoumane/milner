@@ -521,9 +521,9 @@ For every regular expression $e$, $\milner{e}$ is rooted.
 \begin{definition}
 Let $C$ and $D$ be two charts with state sets $Q$ and $Q'$ and respectively. A relation $R\subseteq Q\times Q'$ is a \emph{bisimulation} between $C$ and $D$ if:
 \begin{itemize}
-    \item $(p,q)\in R \Rightarrow\chi(p)=\chi(q)$, 
+    \item $(p,q)\in R \ \ \Rightarrow\ \ \chi(p)=\chi(q)$, 
     \item $\xlongleftarrow{a}_{C}\cdot R\ =\ R \cdot \xlongleftarrow{a}_{D}$ and
-    \item $\xlongrightarrow{a}_{C} \cdot R\;=\;R \cdot \xlongrightarrow{a}_{D}$.
+    \item $\xlongrightarrow{a}_{C} \cdot R\ =\ R \cdot \xlongrightarrow{a}_{D}$.
 \end{itemize}
 
 Let $(p,q)\in C\times D$. We say that $p$ and $q$ are \emph{bisimilar}, and write $p\sim q$, if $(p,q)\in R$ for some bisimilation $R$ between $C$  and $D$.\\
@@ -603,7 +603,7 @@ called \emph{networks}, which extend ordinary charts by allowing multiple inputs
 The rewriting system will be defined on these networks.
 
 \begin{definition}
-  A \emph{network} has the same data as a chart, but instead of a single initial state, it has a list of initial states.
+  A \emph{network} has the same data as a chart, but instead of a single initial state, it has a set of initial states.
 \end{definition}
 
 \begin{definition} We consider the rewriting rules of Figure~\ref{fig:rewriting-rules}, 
@@ -801,95 +801,44 @@ We write~$\twoheadrightarrow$ for the union of all these rewriting rules.\end{de
 \caption{\label{fig:rewriting-rules} Rewriting rules for networks}
      \end{figure}
 
-     As in other rewriting systems, such as state elimination for automata, 
-we require that initial and final states have no incoming 
-and no outgoing transitions, respectively. 
-We introduce a \emph{normalization} operation that enforces that.
+%      As in other rewriting systems, such as state elimination for automata, 
+% we require that initial and final states have no incoming 
+% and no outgoing transitions, respectively. 
+% We introduce a \emph{normalization} operation that enforces that.
 
   
 
-\begin{definition} Let $C$ be a network with initial state list $(I_1, \ldots, I_n)$.
-The \emph{normalization} of~$C$, denoted~$\norm{C}$, is the network obtained as follows: 
-\begin{itemize}
-    \item Add a list of fresh states $(J_1, \ldots, J_n)$ forming the new initial state list.  
-    \item Add a $1$-transition from $J_i$ to $I_i$, for each $i\in \{1,\ldots,n\}$.
-    \item Add a fresh state, called the \emph{sink}, which becomes the unique final state.
-    \item For each former final state, add a $1$-transition to the sink.
-\end{itemize}
+% \begin{definition} Let $C$ be a network with initial state list $(I_1, \ldots, I_n)$.
+% The \emph{normalization} of~$C$, denoted~$\norm{C}$, is the network obtained as follows: 
+% \begin{itemize}
+%     \item Add a list of fresh states $(J_1, \ldots, J_n)$ forming the new initial state list.  
+%     \item Add a $1$-transition from $J_i$ to $I_i$, for each $i\in \{1,\ldots,n\}$.
+%     \item Add a fresh state, called the \emph{sink}, which becomes the unique final state.
+%     \item For each former final state, add a $1$-transition to the sink.
+% \end{itemize}
+% \end{definition}
+
+
+
+
+
+\begin{definition} 
+Let $\varphi$ be a function from a finite set $S$ to regular expressions. The \emph{network} $\mathcal{N}(\varphi)$ is defined as follows.
+Its set of states is $S$ plus a fresh state $f$. Its set of initial states is $S$ and its unique final state is $f$. For every $s \in S$, there is a transition $(s, \varphi(s), f)$.
 \end{definition}
 
-\begin{example} Example of a Network with two initial states, one of them has incoming transitions, and two final states
-\begin{center}
-\begin{tikzpicture}[>=Latex,baseline=(p1.base),
-    state/.style={circle,draw,inner sep=1.6pt},           
-      final/.style={state,double,double distance=1pt},  
-      lab/.style={font=\small}]
-      % initial states (sans étiquettes)
-      \node[state] (p1) at (0,0) {};
-      \node[state] (p2) at (2,0) {};
-
-      \node[state] (c) at (1,-1.5) {};
-      % état final (sans étiquette)
-      \node[final] (q1) at (0,-3) {};   
-      \node[final] (q2) at (2,-3) {};
-      % flèches entrantes verticales numérotées 1..n
-      \draw[->] ([yshift=6mm]p1.north) -- node[left,lab] {$1$} (p1.north);
-      \draw[->] ([yshift=6mm]p2.north) -- node[left,lab] {$2$} (p2.north);
-      % transitions étiquetées par phi(i)
-      \draw[arr] (p1) to node[left,lab, pos=0.4]  {$a$} (c);
-      \draw[arr] (p2) to node[right,lab, pos=0.4] {$b$} (c);
-
-      \draw[arr] (c) to node[left,lab, pos=0.4]  {$a$} (q1);
-      \draw[arr] (c) to node[right,lab, pos=0.4] {$c$} (q2);
-      % transition entrante vers p1
-      \draw[->] (c) to node[above,lab, bend right] {$a$} (p1);
-\end{tikzpicture}
-\hspace{2cm}
-\end{center}
-\end{example}
-
-
-
-
-
-\begin{definition} Let $E=(e_1,\dots,e_n)$ be a list of regular expressions. The \emph{network} $\mathcal{N}(E)$ is defined as follows:
-  \begin{center}
-  \begin{tikzpicture}[>=Latex,baseline=(p1.base),
-    state/.style={circle,draw,inner sep=1.6pt},
-    final/.style={state,double,double distance=1pt},
-    lab/.style={font=\small}]
-    % initial states (sans étiquettes)
-    \node[state] (p1) at (0.5,0) {};
-    %\node[state] (p2) at (1.2,0) {};
-    \node (dots) at (2,0) {$\cdots$};
-    \node[state] (pn) at (3.5,0) {};
-    % état final (sans étiquette)
-    \node[final] (q) at (2,-1.2) {};
-    % flèches entrantes verticales numérotées 1..n
-    \draw[->] ([yshift=6mm]p1.north) -- node[left,lab] {$1$} (p1.north);
-    %\draw[->] ([yshift=6mm]p2.north) -- node[left,lab] {$2$} (p2.north);
-    \draw[->] ([yshift=6mm]pn.north) -- node[left,lab] {$n$} (pn.north);
-    % transitions étiquetées par phi(i)
-    \draw[arr] (p1) to node[left,lab, pos=0.4,xshift=-2mm]  {$e_1$} (q);
-    %\draw[arr] (p2) to node[left,lab, pos=0.4]  {$\varphi(2)$} (q);
-    \draw[arr] (pn) to node[right,lab, pos=0.4, xshift=2mm] {$e_n$} (q);
-  \end{tikzpicture}
-  \end{center}
-\end{definition}
 
 
 
 \begin{definition}
-Let $N$ be a network and let $E$ be a list of regular expressions. If $\norm{N} \twoheadrightarrow^* \mathcal{N}(E)$, we say $N$ \emph{reduces} to $E$ and write:
-\[N \twoheadrightarrow^* E.\]
-When $N$ is a chart, and hence $E$ reduces to a single element $e$, 
-we simply write:
-\[
-N \twoheadrightarrow^* e.
-\]
+Let $N$ be a network. If there is a function $\varphi$ from the set of initial states of $N$ to regular expressions, such that  ${N} \twoheadrightarrow^* \mathcal{N}(\varphi)$, we say that $N$ \emph{reduces} to $\varphi$ and write:
+\[N \twoheadrightarrow^* \varphi.\]
 \end{definition}
 
-
+\begin{remark}
+  When $N$ is a chart, and thus $\varphi$ can be identified with a single expression $e$, in that case, we write:
+  \[N \twoheadrightarrow^* e.\] 
+  \end{remark}
 
 \begin{definition}
 A regular expression is \emph{star-safe} if every sub-expression $f^*$ satisfies $f\Uparrow$.
@@ -918,12 +867,9 @@ A regular expression is \emph{star-safe} if every sub-expression $f^*$ satisfies
 \begin{definition} Let $N$ be a network with a transition relation  $\Delta$. A \emph{labeling} of $N$ is a function
 $\ell:Q \mapsto Re(\Sigma)$ satisfying, for every state $p$:
 \[\ell(p) \ \equiv \underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + \chi(p)\]
-The image of the initial states list of $N$ by $\ell$ is a list of  expressions called its \emph{interface}. If $N$ admits a labeling with interface $E$, we write \[N\models E.\]
+The restriction of $\ell$ to the set of initial states of $N$ is called the \emph{interface} of the labeling. If $N$ admits a labeling with interface $\varphi$, we write \[N\models \varphi.\]
 \end{definition}
 
-\begin{remark} Note that for every network $N$ and list of expressions $E$ we have:
-  \[N\models E\quad \text{iff}\quad [N]\models E.\]
-\end{remark}
 
 
 
@@ -931,18 +877,18 @@ The rewriting rules interact well with the notion of labelability. Indeed, label
 
  \subsection{Reducible implies labelable}\label{sec:reducible-implies-decorable}
    \begin{lemma}
-     Let $M$ and $N$ be two networks. We have:
-     \[ M\twoheadrightarrow N \ \text{ and }\ N \models E \quad \Longrightarrow \quad M \models E. \]
+     Let $M$ and $N$ be two networks and $\varphi$ a function. We have:
+     \[ M\twoheadrightarrow N \ \text{ and }\ N \models \varphi \quad \Longrightarrow \quad M \models \varphi. \]
       \end{lemma}
       \begin{proof}
         By case analysis on the applied rewriting rule.
       \end{proof}
 
-     By noticing that for every list of expressions $E$, we have
-     $\mathcal{N}(E)\models E$, we obtain the following proposition.
+     By noticing that for every finite domain function $\varphi$, we have
+     $\mathcal{N}(\varphi)\models \varphi$, we obtain the following proposition.
  \begin{proposition}
-    For every network $N$ and list of expressions $E$, we have:
-    \[ N\twoheadrightarrow^* E \quad \Longrightarrow \quad N \models E.\]~\label{prop:reducible-implies-decorable}~\\[-25pt]
+    For every network $N$ and function $\varphi$, we have:
+    \[ N\twoheadrightarrow^* \varphi \quad \Longrightarrow \quad N \models \varphi.\]~\label{prop:reducible-implies-decorable}~\\[-25pt]
  \end{proposition}
 
 
@@ -961,80 +907,57 @@ The rewriting rules interact well with the notion of labelability. Indeed, label
  \end{remark}
 
  
-  \begin{lemma}~\label{lem:stable-by-red} Let $M$ and $N$ be two networks safe for reduction. We have:
-    \[  N \models E  \ \text{ and }\  N \twoheadrightarrow M\quad \Longrightarrow\quad M \models E,\] for every list of expressions $E$.
+  \begin{lemma} Let $M$ and $N$ be networks safe for reduction and let $\varphi$ be  a function. We have:
+    \[  N \models \varphi  \ \text{ and }\  N \twoheadrightarrow M\quad \Longrightarrow\quad M \models \varphi.\] ~\label{lem:stable-by-red}
   \end{lemma}
 \begin{proof}
   By case analysis on the rewriting rule.
 \end{proof}
 
 
-\begin{proposition} Let $N$ be a network safe for reduction. We have:
- \[ N \models E\ \text{ and }\  N\twoheadrightarrow^* F\quad \Longrightarrow\quad E\equiv F,\] for every lists of expressions $E$ and $F$.
+\begin{proposition} Let $N$ be a network safe for reduction and let $\varphi$ and $\psi$ be two functions. We have:
+ \[ N \models \varphi\ \text{ and }\  N\twoheadrightarrow^* \psi\quad \Longrightarrow\quad \varphi\equiv \psi.\] 
 \end{proposition}
 \begin{proof} 
 By iterating lemma~\ref{lem:stable-by-red}, and noticing that:
- \[\mathcal{N}(F)\models E\quad \Rightarrow \quad E\equiv F.\]\vspace{-10pt}
+ \[\mathcal{N}(\psi)\models \varphi\quad \Rightarrow \quad \varphi\equiv \psi.\]\vspace{-10pt}
 \end{proof}
 
 As a consequence, we show a sort of confluence for the rewriting system.
 \begin{corollary} Let $N$ be a network. We have: 
-  \[ N \twoheadrightarrow^* E\ \text{ and }\  N\twoheadrightarrow^* F\quad \Longrightarrow\quad E\equiv F.\]
-  for every lists of expressions $E$ and $F$. 
+  \[ N \twoheadrightarrow^* \varphi\ \text{ and }\  N\twoheadrightarrow^* \psi\quad \Longrightarrow\quad \varphi\equiv \psi.\]
+  for every functions $\varphi$ and $\psi$. 
   \label{cor:confluence}
 \end{corollary}
 
 
 
 
+\section{Adding, removing and duplicating initial states}
 
+Promoting states to initial states, or conversely removing their initial-state status, does not change a network's reducibility. Likewise, duplicating an initial state does not change it either.
 
-\section{Adding new initial states}
-
-
-
-We use the same rewriting system as for charts.
-\begin{definition}
-Let $M$ be a chart over $\Sigma$ whose state set is $Q$ and initial state set $I$, and  let $E$ be a set of fresh names. \\[-5pt]
-
-A \emph{bridge} of \emph{external shore} $E$ on $M$ is a subset of $E\times \Sigma \times (Q\setminus I)$.\\[-5pt]
-
-The \emph{bridge application} of $B$ to $M$, denoted $B\triangleright M$, is the generalized chart obtained from $M$ by adding $E$ to the initial states set and adding $B$ to the transitions set, keeping the other components unchanged.
-\end{definition}
-
-
-
-
-\begin{lemma}
-  Let $M$ and $M'$ be a charts and $B$ a bridge for $M$. We have:
-  $$ M\ \twoheadrightarrow\ M' \quad \Longrightarrow \quad B\triangleright M\ \twoheadrightarrow\ B'\triangleright M' $$
-  where $B'$ is a bridge for $M'$ having the same external shore as $B$.
-\end{lemma}
-\section{Reducing traps}
-
-
-\section{Erasing transitions from Milner charts}
-
-In general, erasing transitions from a Milner chart does not yields a Milner Chart. However, we show that if the erased transitions are \emph{coherent} and \emph{border}, then it does.
-
-\begin{definition} Let $M$ be a chart whose transition set is $\Delta$.~\\[-5pt]
-
-  A transition of $M$ is \emph{border} if its source is either initial or final.~\\[-5pt]
-  
-  A set $\Gamma\subseteq \Delta$ is \emph{coherent}, if for every  transitions  
-  $t, u\in \Delta$, whose sources are final and having the same label and target, we have:\vspace{-4pt}
-   $$ t\in \Gamma \quad \Leftrightarrow \quad u\in \Gamma.$$ 
-\end{definition}
-
-
-
-\begin{definition}  
-A \emph{letter erasing} of an expression $e$ is an expression obtained from $e$ by replacing some letter occurrences by $0$.
-\end{definition}
-
-\begin{proposition} Let $e$ be an expression and $\Gamma$ be a coherent set of border transitions of $M(e)$. There is a letter erasing $f$ of $e$ such that:
-  $$ M(e)\setminus \Gamma = M(f).$$
+\begin{proposition} Let $N$ be a network and $\varphi$ be a function such that:
+  \[N\twoheadrightarrow^* \varphi.\]
+  Let $M$ be the network obtained from $N$ by restricting its set of initial states, while all other data remain identical.. If $\psi$ is the restriction of $\varphi$ to the initial states of $M$, then:
+  \[  M \twoheadrightarrow^* \psi.\] 
 \end{proposition}
+
+\begin{proposition} 
+  Let $N$ be a network and $\varphi$ be a function such that:
+  \[N\twoheadrightarrow^* \varphi.\]
+  Let $M$ be the network obtained from $N$ by extending its set of initial states, while all other data remain identical. There is an extension $\psi$ of $\varphi$ such that:
+  \[  M \twoheadrightarrow^* \psi.\] 
+\end{proposition}
+
+\begin{proposition} Let $N$ be a network and $\varphi$ be a function such that:
+  \[N\twoheadrightarrow^* \varphi.\]
+  Let $i$ be an initial state of $N$ and let $M$ be the network obtained from $N$ by adding a fresh initial state $j$ with no ingoing transitions and the same outgoing transitions as $i$.  There is an extension $\psi$ of $\varphi$ such that:
+  \[  M \twoheadrightarrow^* \psi\quad \text{ and }\quad \psi(i) = \psi(j).\] 
+\end{proposition}
+
+
+
 
 
 
@@ -1045,21 +968,47 @@ A \emph{letter erasing} of an expression $e$ is an expression obtained from $e$ 
   The quotient of a chart $M$, denoted $\quotient{M}$, is the chart obtained from $M$ by identifying all bisimilar states.
 \end{definition}
 
-\begin{proposition} For every chart $M$ and expression $e$, we have:
-  $$\quotient{M}\models e\quad \Longrightarrow\quad M\models e. $$~\label{prop:quotient-preserves-labelability}\vspace{-15pt}
+\begin{proposition}~\label{prop:quotient-preserves-labelability} For every chart $M$ and expression $e$, we have:
+  \[\quotient{M}\models e\quad \Longrightarrow\quad M\models e.\]
 \end{proposition}
+In the remainder of this section, we show that the quotient of a Milner chart is reducible.
 
-\begin{proposition}
-  Let $M$ be a chart. We have:
-  $$ M\twoheadrightarrow e\ \text{ and }\ \quotient{M}\twoheadrightarrow f \quad \Longrightarrow\quad e\equiv f,$$ for every expressions $e$ and $f$.
-\end{proposition}
-
-
-\subsection{Quotients of Milner charts are reducible}
 \begin{proposition}For every expression $e$, $\quotient{M(e)}$ is reducible.~\label{prop:quotient-of-Milner-chart-is-labelable}
 \end{proposition}
 
+
+\subsection{Traps}
+
+\begin{definition} A \emph{trap} in a chart is a set of states closed under transitions: if a state is in the trap, then all its successors are also in the trap.
+
+  The \emph{frontier} of a trap is the set of states outside the trap which are either: $i)$ final or $ii)$ have an outgoing transition to a state in the trap.
+
+  A \emph{summary} of a trap is a function whose domain is the frontier of the trap.
+\end{definition}
+
+
+
+\begin{definition}
+Let $C$ be a chart, $T$ a trap of $C$, and $\varphi$ a summary of $T$.
+
+We denote by $C[T,\varphi]$ the chart obtained as follows.  
+First, all states belonging to the trap~$T$ are removed.  
+Then, for each state $q$ on the frontier, we create a fresh copy of $q$, we declare this copy final, we make $q$ non-final if it was, and we add a transition from $q$ to its copy labelled by~$\varphi(q)$.  
+All other states and transitions remain unchanged.
+
+A \emph{trap abstraction} of $C$ is a chart of the form $C[T,\varphi]$ for some trap $T$ of $C$ and some summary $\varphi$ of $T$.
+\end{definition}
+
+\begin{example} Example of a trap abstraction.
+\end{example}
+
+\begin{proposition} A trap abstraction of a Milner chart is a Milner chart.
+\end{proposition}
+
 \section{Proof of completeness}
+
+
+
 We can now prove the completeness of Milner's axiomatization.
 
 \begin{theorem} For every expressions $e$ and $f$, we have:
@@ -1077,6 +1026,27 @@ We can now prove the completeness of Milner's axiomatization.
 
 
 
+\section{Erasing transitions from Milner charts}
+
+In general, erasing transitions from a Milner chart does not yield a Milner Chart. However, we show that if the erased transitions are \emph{coherent} and \emph{border}, then it does.
+
+\begin{definition} Let $M$ be a chart whose transition set is $\Delta$.~\\[-5pt]
+
+  A transition of $M$ is \emph{border} if its source is either initial or final.~\\[-5pt]
+  
+  A set $\Gamma\subseteq \Delta$ is \emph{coherent}, if for every  transitions  
+  $t, u\in \Delta$, whose sources are final and having the same label and target, we have:\vspace{-4pt}
+   $$ t\in \Gamma \quad \Leftrightarrow \quad u\in \Gamma.$$ 
+\end{definition}
+
+
+\begin{definition}  
+A \emph{letter erasing} of an expression $e$ is an expression obtained from $e$ by replacing some letter occurrences by $0$.
+\end{definition}
+
+\begin{proposition} Let $e$ be an expression and $\Gamma$ be a coherent set of border transitions of $M(e)$. There is a letter erasing $f$ of $e$ such that:
+  $$ M(e)\setminus \Gamma = M(f).$$
+\end{proposition}
 
 
 
