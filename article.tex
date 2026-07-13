@@ -873,7 +873,7 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
   \end{tabular}
   %}
   \end{center}~\\[15pt]
-  \caption{\label{fig:rewriting-rules} Rewriting rules for networks}
+  \caption{\label{fig:rewriting-rules} Rewriting rules for charts}
        \end{figure}
   
         As in other rewriting systems, such as state elimination for automata, 
@@ -882,7 +882,7 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
    We introduce a \emph{normalization} operation that enforces that.
   
   \begin{definition} Let $C$ be a chart. 
-  The \emph{normalization} of~$C$, denoted~$\norm{C}$, is the network obtained from $C$ by adding a fresh state, called the \emph{sink}, which becomes the unique final state, and adding a $1$-transition from each final state of $C$ to the sink.
+  The \emph{normalization} of~$C$, denoted~$\norm{C}$, is the chart obtained from $C$ by adding a fresh state, called the \emph{sink}, which becomes the unique final state, and adding a $1$-transition from each final state of $C$ to the sink.
   \end{definition}
 
   \begin{definition} 
@@ -936,18 +936,18 @@ The label of the initial state is called the \emph{root} of the labeling.
   
    \subsection{Reducible implies labelable}\label{sec:reducible-implies-decorable}
      \begin{lemma}
-       Let $M$ and $N$ be two networks and $\varphi$ a function. We have:
-       \[ M\twoheadrightarrow N \ \text{ and }\ N \models \varphi \quad \Longrightarrow \quad M \models \varphi. \]
+       Let $M$ and $N$ be two charts and $e$ a regular expression. We have:
+       \[ M\twoheadrightarrow N \ \text{ and }\ N \models e \quad \Longrightarrow \quad M \models e. \]
         \end{lemma}
         \begin{proof}
           By case analysis on the applied rewriting rule.
         \end{proof}
   
-       By noticing that for every finite domain function $\varphi$, we have
-       $\mathcal{N}(\varphi)\models \varphi$, we obtain the following proposition.
+       By noticing that for every regular expression $e$, we have
+       $C(e)\models e$, we obtain the following proposition.
    \begin{proposition}
-      For every network $N$ and function $\varphi$, we have:
-      \[ N\twoheadrightarrow^* \varphi \quad \Longrightarrow \quad N \models \varphi.\]~\label{prop:reducible-implies-decorable}~\\[-25pt]
+      For every chart $C$ and regular expression $e$, we have:
+      \[ C\twoheadrightarrow^* e \quad \Longrightarrow \quad C \models e.\]~\label{prop:reducible-implies-decorable}~\\[-25pt]
    \end{proposition}
   
   
@@ -958,44 +958,75 @@ The label of the initial state is called the \emph{root} of the labeling.
   
   \subsection{Confluence of the rewriting system}\label{sec:confluence-of-rewriting-system}
   
-    \begin{definition} Let $N$ be a network over regular expressions.
-   A cycle in $N$ is \emph{final} if all its transition labels are final. We say that $N$ is \emph{safe for reduction} if it has no final cycles.
+    \begin{definition} Let $C$ be a chart over regular expressions.
+   A cycle in $C$ is \emph{final} if all its transition labels are final. We say that $C$ is \emph{safe for reduction} if it has no final cycles.
    \end{definition}
   
    \begin{remark} Note that charts over the alphabet $\Sigma$ are safe for reduction.
    \end{remark}
   
    
-    \begin{lemma} Let $M$ and $N$ be networks safe for reduction and let $\varphi$ be  a function. We have:
-      \[  N \models \varphi  \ \text{ and }\  N \twoheadrightarrow M\quad \Longrightarrow\quad M \models \varphi.\] ~\label{lem:stable-by-red}
+    \begin{lemma} Let $M$ and $N$ be charts safe for reduction and let $e$ be a regular expression. We have:
+      \[  N \models e  \ \text{ and }\  N \twoheadrightarrow M\quad \Longrightarrow\quad M \models e.\] ~\label{lem:stable-by-red}
     \end{lemma}
   \begin{proof}
     By case analysis on the rewriting rule.
   \end{proof}
   
   
-  \begin{proposition} Let $N$ be a network safe for reduction and let $\varphi$ and $\psi$ be two functions. We have:
-   \[ N \models \varphi\ \text{ and }\  N\twoheadrightarrow^* \psi\quad \Longrightarrow\quad \varphi\equiv \psi.\] 
+  \begin{proposition} Let $C$ be a chart safe for reduction and let $e$ and $f$ be two regular expressions. We have:
+   \[ C \models e\ \text{ and }\  C\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f.\] 
   \end{proposition}
   \begin{proof} 
   By iterating lemma~\ref{lem:stable-by-red}, and noticing that:
-   \[\mathcal{N}(\psi)\models \varphi\quad \Rightarrow \quad \varphi\equiv \psi.\]\vspace{-10pt}
+   \[C(f)\models e\quad \Rightarrow \quad e\equiv f.\]\vspace{-10pt}
   \end{proof}
   
   As a consequence, we show a sort of confluence for the rewriting system.
-  \begin{corollary} Let $N$ be a network. We have: 
-    \[ N \twoheadrightarrow^* \varphi\ \text{ and }\  N\twoheadrightarrow^* \psi\quad \Longrightarrow\quad \varphi\equiv \psi.\]
-    for every functions $\varphi$ and $\psi$. 
+  \begin{corollary} For every chart $C$ and regular expressions $e$ and $f$, we have:
+    \[ C \twoheadrightarrow^* e\ \text{ and }\  C\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f.\]
     \label{cor:confluence}
   \end{corollary}
   
   
+  \section{Completeness and strong completeness of regular expressions}
+\begin{notation} If $S$ is a set of regular expressions and $e$ is a regular expression, we write: \[Se\ :=\ \{se \ \mid\  s \in S\}.\]
+\end{notation}
+
+\begin{definition} The \emph{derivatives} of a regular expression $e$ over $\Sigma$, denoted $\delta(e)$, is the set of regular expressions over $\Sigma$ defined by induction on $e$ as follows:
+\begin{flalign*}
+&\qquad \qquad \qquad \qquad \delta(0) = \delta(1) = \emptyset, \qquad \qquad \delta(a) = \{1\} \  (a \in \Sigma), &&\\[6pt]
+&\delta(e+f) = \delta(e) \cup \delta(f), \qquad \delta(ef) = \delta(e)e \ \cup\ \delta(f), \qquad \delta(e^*) = \delta(e)e^*.&&\\[4pt]
+\end{flalign*}
+\end{definition}
+
+\begin{definition} Let $e$ and $f$ be two regular expressions. We write:
+\[\ \ f\leq e \quad \text{if} \quad e+f\equiv e\]
+\[\text{ and } \quad \quad f\sqsubseteq e \quad \text{if} \quad \exists g\in \delta(e).\quad  f\leq g.\]
+\end{definition}
+
+\begin{definition} Let $e$ be a regular expression. \\
   
+  We say that $e$ is \emph{complete} if:
+\[\forall f_1, f_2 \in \delta(e).\qquad f_1\sim f_2 \quad \Longrightarrow \quad f_1\equiv f_2.\]
 
+  We say that $e$ is \emph{strongly complete} if for every expression $g$:
+\[\forall f_1, f_2 \in \delta(e).\qquad f_1g\sim f_2g \quad \Longrightarrow \quad f_1g\equiv f_2g.\]
+\end{definition}
 
-\begin{proposition} For every expression $e$, $[M(e)]$ is reducible.\label{prop:quasi-quotient-of-Milner-chart-is-labelable}
+\begin{proposition}
+Let $e$ and $f$ be two regular expressions. We have:
+\[e\sim f \quad \text{ and } \quad e \text{ complete } \quad \Longrightarrow \quad e\equiv f.\]
 \end{proposition}
 
+\begin{proposition}
+  Let $e$ be a stronbgly complete regular expression. We have: 
+\[\forall g,h \sqsubseteq e, \qquad gh^* \text{ is strongly complete. }\]
+\[e0 \text{ is strongly complete. }\]
+\end{proposition}
+
+\begin{theorem} Every regular expression is strongly complete.
+\end{theorem}
   \begin{thebibliography}{9}
 \bibitem{Antimirov1996}
 V. Antimirov, ``Partial derivatives of regular expressions and finite automaton constructions,'' \emph{Theoretical Computer Science}, 155(2): 291--319, 1996.
