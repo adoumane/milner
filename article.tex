@@ -36,6 +36,12 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
   ruletitle/.style={font=\bfseries\scriptsize}
 }
 \usepackage{scalerel}
+\usepackage{xcolor}
+
+% Margin comments
+\newcommand{\todo}[1]{%
+  \marginpar{\parbox{\marginparwidth}{\footnotesize\raggedright\color{blue}#1}}%
+}
 
 % Demi-cercles creux
 \newcommand{\lsemicirc}[1]{%
@@ -989,44 +995,176 @@ The label of the initial state is called the \emph{root} of the labeling.
   \end{corollary}
   
   
-  \section{Completeness and strong completeness of regular expressions}
-\begin{notation} If $S$ is a set of regular expressions and $e$ is a regular expression, we write: \[Se\ :=\ \{se \ \mid\  s \in S\}.\]
-\end{notation}
+\section{Completeness of regular expressions}
 
-\begin{definition} The \emph{derivatives} of a regular expression $e$ over $\Sigma$, denoted $\delta(e)$, is the set of regular expressions over $\Sigma$ defined by induction on $e$ as follows:
-\begin{flalign*}
-&\qquad \qquad \qquad \qquad \delta(0) = \delta(1) = \emptyset, \qquad \qquad \delta(a) = \{1\} \  (a \in \Sigma), &&\\[6pt]
-&\delta(e+f) = \delta(e) \cup \delta(f), \qquad \delta(ef) = \delta(e)e \ \cup\ \delta(f), \qquad \delta(e^*) = \delta(e)e^*.&&\\[4pt]
-\end{flalign*}
+
+
+\subsection{Partial derivatives}
+
+
+\begin{definition}
+The \emph{derivatives} $\partial(e)$ of a regular expression $e$ over $\Sigma$
+are defined inductively as follows: \todo{Clarifier si $e\in \partial(e)$ ou non.}
+\begin{itemize}
+  \item $\partial(0) = \partial(1) = \emptyset$;
+  \item $\partial(a) = \{1\}$ for $a \in \Sigma$;
+  \item $\partial(e+f) = \partial(e) \cup \partial(f)$;
+  \item $\partial(ef) = \partial(e)f \cup \partial(f)$;
+  \item $\partial(e^*) = \partial(e)e^*$.
+\end{itemize}
+Here, for a set $S$ of regular expressions and a regular expression $f$,
+we write
+\[
+Sf=\{sf \mid s\in S\}.
+\]
 \end{definition}
 
-\begin{definition} Let $e$ and $f$ be two regular expressions. We write:
-\[\ \ f\leq e \quad \text{if} \quad e+f\equiv e\]
-\[\text{ and } \quad \quad f\sqsubseteq e \quad \text{if} \quad \exists g\in \delta(e).\quad  f\leq g.\]
+% Alternative possible definition.
+% \begin{definition}
+%   Let $a,b \in \Sigma$. The partial derivative of a regular expression
+%   with respect to $a$ is defined inductively by:
+%   \[
+%   \partial_a(0)=\partial_a(1)=\varnothing,
+%   \]
+%   \[
+%   \partial_a(b)=
+%   \begin{cases}
+%   \{1\} & \text{if } a=b,\\
+%   \varnothing & \text{otherwise},
+%   \end{cases}
+%   \]
+%   \[
+%   \partial_a(e+f)=\partial_a(e)\cup\partial_a(f),
+%   \]
+%   \[
+%   \partial_a(ef)
+%   =
+%   \partial_a(e)f
+%   \cup
+%   \begin{cases}
+%   \partial_a(f) & \text{if } e\Downarrow,\\
+%   \varnothing & \text{otherwise},
+%   \end{cases}
+%   \]
+%   \[
+%   \partial_a(e^*)=\partial_a(e)e^*.
+%   \]
+%
+%   Here, for a set $S$ of regular expressions and a regular expression $f$,
+%   we write
+%   \[
+%   Sf=\{sf \mid s\in S\}.
+%   \]
+%
+%   The partial derivatives with respect to words are defined by:
+%   \[
+%   \partial_\varepsilon(e)=\{e\},
+%   \]
+%   and
+%   \[
+%   \partial_{wa}(e)
+%   =
+%   \bigcup_{f\in\partial_w(e)} \partial_a(f),
+%   \]
+%   for every $w\in\Sigma^*$ and $a\in\Sigma$.
+%
+%   The set of iterated derivatives of $e$ is the following set:
+%   \[
+%   \partial(e)
+%   =
+%   \bigcup_{w\in\Sigma^*}\partial_w(e).
+%   \]
+%
+% \end{definition}
+
+\subsection{Subexpression orderings}
+
+\begin{definition}
+For every regular expressions $e$ and $f$, we write:
+\begin{itemize}
+  \item $f \prec e \quad\Longleftrightarrow\quad f \in \partial(e)$;
+  \item $f \leq e \quad\Longleftrightarrow\quad e + f \equiv e$;
+  \item $f \sqsubseteq e \quad\Longleftrightarrow\quad
+    \exists g \prec e,\; f \leq g$.
+\end{itemize}
 \end{definition}
 
-\begin{definition} Let $e$ be a regular expression. \\
-  
-  We say that $e$ is \emph{complete} if:
-\[\forall f_1, f_2 \in \delta(e).\qquad f_1\sim f_2 \quad \Longrightarrow \quad f_1\equiv f_2.\]
 
-  We say that $e$ is \emph{strongly complete} if for every expression $g$:
-\[\forall f_1, f_2 \in \delta(e).\qquad f_1g\sim f_2g \quad \Longrightarrow \quad f_1g\equiv f_2g.\]
+
+\begin{lemma}
+The relations $\prec$, $\leq$ and $\sqsubseteq$ are transitive.
+\end{lemma}
+
+\subsection{Completeness}
+
+\begin{definition}
+A regular expression $e$ is:
+\begin{enumerate}
+  \item \emph{complete} if
+  \[
+    \forall f_1, f_2 \in \partial(e),\quad f_1 \sim f_2\ \Longrightarrow\  f_1 \equiv f_2;
+  \]
+  \item \emph{strongly complete} if, for every regular expression $g$,
+  \[
+    \forall f_1, f_2 \in \partial(e),\quad f_1 g \sim f_2 g\ \Longrightarrow\  f_1 g \equiv f_2 g.
+  \]
+\end{enumerate}
 \end{definition}
 
-\begin{proposition}
-Let $e$ and $f$ be two regular expressions. We have:
-\[e\sim f \quad \text{ and } \quad e \text{ complete } \quad \Longrightarrow \quad e\equiv f.\]
+
+
+\subsection{Main results}
+
+\begin{proposition}\label{prop:complete-bisim}
+If $e \sim f$ and $e$ is complete, then $e \equiv f$.
 \end{proposition}
 
+\begin{proposition}\label{prop:sc-closure}
+Let $e$ be a strongly complete regular expression. Then:
+\begin{enumerate}
+  \item for all $g, h \sqsubseteq e$, the expression $gh^*$ is strongly complete;
+  \item the expression $e0$ is strongly complete.
+\end{enumerate}
+\end{proposition}
 \begin{proposition}
-  Let $e$ be a stronbgly complete regular expression. We have: 
-\[\forall g,h \sqsubseteq e, \qquad gh^* \text{ is strongly complete. }\]
-\[e0 \text{ is strongly complete. }\]
+Let $e$, $f$ and $g$ be regular expressions. If $eg \sim fg$, then either
+\begin{itemize} 
+  \item $e \sim f$, or
+  \item $g \sim h^* 0\ $ for some $\ h \sqsubseteq e\ $ or $\ h \sqsubseteq f$.
+\end{itemize}
 \end{proposition}
 
-\begin{theorem} Every regular expression is strongly complete.
+\begin{theorem}
+Every regular expression is strongly complete.
 \end{theorem}
+\begin{proof}
+By induction on $e$.
+\begin{itemize}
+  \item \textbf{Case $e = a\in \Sigma$.} It is immediate.
+  \item \textbf{Case $e \in \{0, 1\}$.} The condition is vacuous.
+
+  \item \textbf{Case $e + f$.}
+  %By induction, $e$ and $f$ are strongly complete, hence complete.
+  Let $g, h_1$ and $h_2$ be regular expressions such that:
+   \[h_1\prec e+f\quad \text{and}\quad h_2\prec e+f\quad \text{and}\quad h_1 g \sim h_2 g.\]
+  We distinguish two cases.
+\begin{itemize}
+  \item $h_1\prec e$ and $h_2\prec e$. By induction hypothesis, $e$  is strongly complete, hence $h_1 g \equiv h_2 g$. 
+  
+  The same argument applies when $h_1\prec f$ and $h_2\prec f$.
+  \item  $h_1 \prec e$ and $h_2 \prec f$. By Proposition~\ref{prop:sc-closure}(1), $h_1 h_1^*$ and $h_2 h_2^*$ are strongly complete.
+  Since $e$ and $f$ are complete and $h_1, h_2$ are derivatives of distinct summands of $e+f$, the hypothesis $h_1 g \sim h_2 g$ implies $h_1 g \equiv h_2 g$.
+\end{itemize}
+  \item \textbf{Case $ef$.}
+  %By induction, $e$ and $f$ are strongly complete, hence complete.
+  Let $g, h_1$ and $h_2$ be regular expressions such that:
+   \[h_1\prec ef\quad \text{and}\quad h_2\prec ef\quad \text{and}\quad h_1 g \sim h_2 g.\]
+   \item \textbf{Case $e^*$.}
+   %By induction, $e$ and $f$ are strongly complete, hence complete.
+   Let $g, h_1$ and $h_2$ be regular expressions such that:
+    \[h_1\prec e^*\quad \text{and}\quad h_2\prec e^*\quad \text{and}\quad h_1 g \sim h_2 g.\]
+\end{itemize}
+\end{proof}
   \begin{thebibliography}{9}
 \bibitem{Antimirov1996}
 V. Antimirov, ``Partial derivatives of regular expressions and finite automaton constructions,'' \emph{Theoretical Computer Science}, 155(2): 291--319, 1996.
