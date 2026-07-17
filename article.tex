@@ -1002,22 +1002,35 @@ The label of the initial state is called the \emph{root} of the labeling.
 \subsection{Partial derivatives}
 
 
-\begin{definition}
-The \emph{derivatives} $\partial(e)$ of a regular expression $e$ over $\Sigma$
-are defined inductively as follows: \todo{Clarifier si $e\in \partial(e)$ ou non.}
-\begin{itemize}
-  \item $\partial(0) = \partial(1) = \emptyset$;
-  \item $\partial(a) = \{1\}$ for $a \in \Sigma$;
-  \item $\partial(e+f) = \partial(e) \cup \partial(f)$;
-  \item $\partial(ef) = \partial(e)f \cup \partial(f)$;
-  \item $\partial(e^*) = \partial(e)e^*$.
-\end{itemize}
-Here, for a set $S$ of regular expressions and a regular expression $f$,
+\begin{notation}
+For a set $S$ of regular expressions and a regular expression $e$,
 we write
 \[
-Sf=\{sf \mid s\in S\}.
+Se :=\{fe \mid f\in S\}.
 \]
-\end{definition}
+\end{notation}
+
+\begin{definition}
+ Let $S$ be a set of regular expressions. The set $\partial_S(e)$ of
+  \emph{derivatives of $e$ up to $S$} is defined inductively by
+  \[
+  \partial_S(e)=\emptyset\quad  \text{ if } \quad e\in S
+  \]
+  and, for $e\notin S$, by the following clauses:
+  \begin{itemize}
+  \item $\partial_S(0)=\partial_S(1)=\emptyset$;
+  \item $\partial_S(a)={1}$ for $a\in\Sigma$;
+  \item $\partial_S(e+f)=\partial_S(e)\cup\partial_S(f)$;
+  \item $\partial_S(ef)=\partial_S(e)f\cup\partial_S(f)$;
+  \item $\partial_S(e^*)=\partial_S(e)e^*$.
+  \end{itemize}
+
+\medskip
+
+  We let $\partial(e):=\partial_{\emptyset}(e)$.
+  \end{definition}
+  
+  
 
 % Alternative possible definition.
 % \begin{definition}
@@ -1084,34 +1097,52 @@ For every regular expressions $e$ and $f$, we write:
 \begin{itemize}
   \item $f \prec e \quad\Longleftrightarrow\quad f \in \partial(e)$;
   \item $f \leq e \quad\Longleftrightarrow\quad e + f \equiv e$;
-  \item $f \sqsubseteq e \quad\Longleftrightarrow\quad
-    \exists g \prec e,\; f \leq g$.
+  \item $f \sqsubset e \quad\Longleftrightarrow\quad
+    \exists g,\; f \leq g \prec e$.
 \end{itemize}
 \end{definition}
 
 
 
 \begin{lemma}
-The relations $\prec$, $\leq$ and $\sqsubseteq$ are transitive.
+The relations $\prec$, $\leq$ and $\sqsubset$ are transitive.
 \end{lemma}
+
+\begin{proposition}\label{prop:sim-sim-or-sim-h-star-0}
+  Let $e$, $f$ and $g$ be regular expressions. If $eg \sim fg$, then either
+  \begin{itemize} 
+    \item $e \sim f$, or
+    \item $g \sim h^* 0\ $ for some $\ h \sqsubset e\ $ or $\ h \sqsubset f$.
+  \end{itemize}
+  \end{proposition}
 
 \subsection{Completeness}
 
-\begin{definition}
-A regular expression $e$ is:
-\begin{enumerate}
-  \item \emph{complete} if
+\begin{definition} Let $S$ be a set of regular expressions.
+\medskip
+
+  \noindent The set $S$ is \emph{complete} if for every $f_1, f_2 \in S$:
   \[
-    \forall f_1, f_2 \in \partial(e),\quad f_1 \sim f_2\ \Longrightarrow\  f_1 \equiv f_2;
+    f_1 \sim f_2\ \Longrightarrow\  f_1 \equiv f_2;
   \]
-  \item \emph{strongly complete} if, for every regular expression $g$,
+ The set  $S$ is \emph{strongly complete} if, for every expression $g$ and every $f_1, f_2 \in S$:
   \[
-    \forall f_1, f_2 \in \partial(e),\quad f_1 g \sim f_2 g\ \Longrightarrow\  f_1 g \equiv f_2 g.
+    f_1 g \sim f_2 g\ \Longrightarrow\  f_1 g \equiv f_2 g.
   \]
-\end{enumerate}
+  \medskip
+  A regular expression $e$ is complete (resp. strongly complete) if its set of derivatives is complete (resp. strongly complete).
 \end{definition}
 
+\begin{lemma}\label{lem:prec-complete} If $f\prec e$ and $e$ is complete, then $f$ is complete.
+\end{lemma}
 
+\begin{proposition}\label{prop:sc-closure}
+  Let $e$ be a strongly complete regular expression. Then:
+  \begin{enumerate}
+    \item for all $g, h \sqsubset e$, the expression $gh^*$ is strongly complete;
+    \item the expression $e0$ is strongly complete.
+  \end{enumerate}
+  \end{proposition}
 
 \subsection{Main results}
 
@@ -1119,23 +1150,9 @@ A regular expression $e$ is:
 If $e \sim f$ and $e$ is complete, then $e \equiv f$.
 \end{proposition}
 
-\begin{lemma}\label{lem:prec-complete} If $f\prec e$ and $e$ is complete, then $f$ is complete.
-\end{lemma}
 
-\begin{proposition}\label{prop:sc-closure}
-Let $e$ be a strongly complete regular expression. Then:
-\begin{enumerate}
-  \item for all $g, h \sqsubseteq e$, the expression $gh^*$ is strongly complete;
-  \item the expression $e0$ is strongly complete.
-\end{enumerate}
-\end{proposition}
-\begin{proposition}\label{prop:sim-sim-or-sim-h-star-0}
-Let $e$, $f$ and $g$ be regular expressions. If $eg \sim fg$, then either
-\begin{itemize} 
-  \item $e \sim f$, or
-  \item $g \sim h^* 0\ $ for some $\ h \sqsubseteq e\ $ or $\ h \sqsubseteq f$.
-\end{itemize}
-\end{proposition}
+
+
 
 \begin{theorem}
 Every regular expression is strongly complete.
@@ -1170,10 +1187,10 @@ By induction on $e$.
       $h_1\equiv h_2$, and hence $h_1g\equiv h_2g$ by congruence.
 
       \item $g\sim h^*0$ for some
-      $h\sqsubseteq h_1$ or $h\sqsubseteq h_2$.
-      Assume that $h\sqsubseteq h_1$; the other case is symmetric.
-      Since $h_1\prec e$, we have $h_1\sqsubseteq e$, and transitivity
-      gives $h\sqsubseteq e$. Proposition~\ref{prop:sc-closure}(1)
+      $h\sqsubset h_1$ or $h\sqsubset h_2$.
+      Assume that $h\sqsubset h_1$; the other case is symmetric.
+      Since $h_1\prec e$, we have $h_1\sqsubset e$, and transitivity
+      gives $h\sqsubset e$. Proposition~\ref{prop:sc-closure}(1)
       shows that $h_1h^*$ is strongly complete, and
       Proposition~\ref{prop:sc-closure}(2) then shows that
       $h_1h^*0$ is strongly complete, hence complete.
