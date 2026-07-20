@@ -523,7 +523,7 @@ where  $a \in \Sigma$:
 
 \begin{example} The Milner charts of $a(b+c)$, $(a(b+c))^*$ and $ab^*+c^*$ are respectively the following:
 \begin{center}
-\begin{tabular}{@{}c@{\qquad \qquad}c@{\qquad\qquad}c@{}}
+\begin{tabular}{@{}c@{\qquad \qquad}c@{\qquad\qquad}c@{}}
   %
   \begin{tikzpicture}[baseline=(i.center),
     >=Latex,
@@ -995,9 +995,30 @@ The label of the initial state is called the \emph{root} of the labeling.
   \end{corollary}
   
   
+
+\section{Erasing transitions from Milner charts}
+
+In general, erasing transitions from a Milner chart does not yield a Milner Chart. However, we show that if the erased transitions are \emph{coherent} and \emph{border}, then it does.
+
+\begin{definition} Let $M$ be a chart whose transition set is $\Delta$.~\\[-5pt]
+
+  A transition of $M$ is \emph{border} if its source is either initial or final.~\\[-5pt]
+  
+  A set $\Gamma\subseteq \Delta$ is \emph{coherent}, if for every  transitions  
+  $t, u\in \Delta$, whose sources are final and having the same label and target, we have:\vspace{-4pt}
+   $$ t\in \Gamma \quad \Leftrightarrow \quad u\in \Gamma.$$ 
+\end{definition}
+
+
+\begin{definition}  
+A \emph{letter erasing} of an expression $e$ is an expression obtained from $e$ by replacing some letter occurrences by $0$.
+\end{definition}
+
+\begin{proposition} Let $e$ be an expression and $\Gamma$ be a coherent set of border transitions of $M(e)$. There is a letter erasing $f$ of $e$ such that:
+  $$ M(e)\setminus \Gamma = M(f).$$
+\end{proposition}
+
 \section{Completeness of regular expressions}
-
-
 
 \subsection{Partial derivatives}
 
@@ -1028,6 +1049,12 @@ Se :=\{fe \mid f\in S\}.
 \medskip
 
   We let $\partial(e):=\partial_{\emptyset}(e)$.
+  When $g$ is a regular expression, we write $\partial_g(e):=\partial_{\{g\}}(e)$.
+  For regular expressions $f$ and $g$, we write
+  \[
+    \partial(f)|_{\sim g} := \{ h \in \partial(f) \mid h \sim g \}
+  \]
+  for the restriction of $\partial(f)$ to expressions bisimilar to $g$.
   \end{definition}
   
   
@@ -1111,8 +1138,9 @@ The relations $\prec$, $\leq$ and $\sqsubset$ are transitive.
 \begin{proposition}\label{prop:sim-sim-or-sim-h-star-0}
   Let $e$, $f$ and $g$ be regular expressions. If $eg \sim fg$, then either
   \begin{itemize} 
+    \item $g \sim h^* 0\ $ for some $\ h \sqsubset e\ $ or $\ h \sqsubset f$, or 
     \item $e \sim f$, or
-    \item $g \sim h^* 0\ $ for some $\ h \sqsubset e\ $ or $\ h \sqsubset f$.
+    \item A faire. \todo{C'est un cas que j'ai loupé, mais son escence apparaissait déjà dans des versions antérieurs de la preuve. Dans ce troisième cas,  il existe $e'$ tel que  $eg \sim e'g$, l'expression $e'$ est obtenues par des effacement d'occurences de lettres de $e$. }
   \end{itemize}
   \end{proposition}
 
@@ -1150,7 +1178,10 @@ The relations $\prec$, $\leq$ and $\sqsubset$ are transitive.
 If $e \sim f$ and $e$ is complete, then $e \equiv f$.
 \end{proposition}
 
+\begin{proposition} Let $e, f$ and $g$ be regular expressions of arity zero. \smallskip
 
+If $e \sim f$, $\partial_g(e)$ is complete and $\partial(f)|_{\sim g}$ is complete, then $e \equiv f$.
+\end{proposition}
 
 
 
