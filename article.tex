@@ -42,6 +42,9 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
 \newcommand{\todo}[1]{%
   \marginpar{\parbox{\marginparwidth}{\footnotesize\raggedright\color{blue}#1}}%
 }
+\newcommand{\damien}[1]{%
+  \marginpar{\parbox{\marginparwidth}{\footnotesize\raggedright\color{red}dp: #1}}%
+}
 
 % Demi-cercles creux
 \newcommand{\lsemicirc}[1]{%
@@ -121,7 +124,7 @@ We sometimes write $ef$ for $e \cdot f$. The precedence of operations is as usua
 \end{notation}
 \vspace{1em}
 
-While the semantics of regular expressions are traditionally defined as word languages, in this paper we will define them through charts, which we introduce in the following section.
+While the semantics of regular expressions is traditionally defined as word languages, in this paper we will define them through charts, which we introduce in the following section.
 
 
 
@@ -155,8 +158,12 @@ and its finality is the function $\chi$ defined as follows:
 \begin{remark}
 When clear from context or irrelevant, we omit the alphabet of a chart.
 We sometimes define a chart by specifying the derivatives of its states rather than its 
-transitions set; this is equivalent. As usual, we shall not distinguish between isomorphic charts. 
+transitions set; this is equivalent.
+\damien{sentence below could probably be removed}
+As usual, we shall not distinguish between isomorphic charts. 
 \end{remark}
+
+\damien{example of a chart, announce that transition labels are omitted when irrelevant}
 
 \subsection{Milner Charts}
 
@@ -407,7 +414,7 @@ and unreachable states are removed.
 The \emph{Kleene star} of a chart $C$, denoted $C^*$, 
 is obtained by adding to each final state of~$C$ 
 the derivatives of its initial state, 
-which remains initial and becomes also final. 
+which remains initial and also becomes final. 
 Unreachable states are then removed.
 \end{definition}
 
@@ -585,7 +592,10 @@ where  $a \in \Sigma$:
 
 
 
-\begin{definition} A chart is \emph{rooted} if its initial state has no ingoing transitions.
+
+\begin{definition}
+  \damien{not so standard terminology}
+  A chart is \emph{rooted} if its initial state has no ingoing transitions.
 \end{definition}
 
 \begin{proposition}
@@ -604,13 +614,13 @@ For every regular expression $e$, $\milner{e}$ is rooted.
 Let $C$ and $D$ be two charts with state sets $Q$ and $Q'$ and respectively. A relation $R\subseteq Q\times Q'$ is a \emph{bisimulation} between $C$ and $D$ if:
 \begin{itemize}
     \item $(p,q)\in R \Rightarrow\chi_1(p)=\chi_1(q)$, 
-    \item $\xlongleftarrow{a}_{C}\cdot R\ =\ R \cdot \xlongleftarrow{a}_{D}$ and
-    \item $\xlongrightarrow{a}_{C} \cdot R\;=\;R \cdot \xlongrightarrow{a}_{D}$.
+    \item \damien{$\subseteq$} $\xlongleftarrow{a}_{C}\cdot R\ =\ R \cdot \xlongleftarrow{a}_{D}$ and
+    \item \damien{$\supseteq$} $\xlongrightarrow{a}_{C} \cdot R\;=\;R \cdot \xlongrightarrow{a}_{D}$.
 \end{itemize}
 
 Let $(p,q)\in C\times D$. We say that $p$ and $q$ are \emph{bisimilar}, and write $p\sim q$, if $(p,q)\in R$ for some bisimilation $R$ between $C$  and $D$.\\
 
-We say that $C$ and $D$ are \emph{bisimilar}, and write $C \sim D$, if there initial states are bisimilar.
+We say that $C$ and $D$ are \emph{bisimilar}, and write $C \sim D$, if their initial states are bisimilar.
 \end{definition}
 
 
@@ -621,7 +631,8 @@ We say that $C$ and $D$ are \emph{bisimilar}, and write $C \sim D$, if there ini
 \begin{definition} We define the \emph{finality} function $\chi:Re(\Sigma)\rightarrow\{0,1\}$ from regular
          expressions over the alphabet $\Sigma$ to $\{0,1\}$
          as follows:
-\[
+           \damien{call it $\epsilon$ to remain standard?}
+         \[
 \begin{aligned}
 &\chi(0)=0, \quad \chi(1)=1, \quad \chi(a)=0 \quad (a \in \Sigma), \\[0.3em]
 &\chi(e+g)=\max(\chi(e),\chi(g)), \quad \chi(eg)=\chi(e)\chi(g), \quad \chi(e^*)=1 .
@@ -660,6 +671,7 @@ If $\chi(e)=1$ we write $e\Downarrow$ and say that $e$ is \emph{final}. Otherwis
 \end{array}
 \]
 
+\damien{salooma/salomaa}
 \textbf{Salooma's induction rule:}
 \vspace{.5em}
 \[
@@ -693,7 +705,7 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
   \begin{itemize}
       \item squares denote states for which only some transitions are shown,
       \item circles denote states whose transitions are all explicitly displayed,
-      \item circles are distinct from surrounding nodes and are neither initial nor final.
+      \item circles are distinct from \damien{unclear} surrounding nodes and are neither initial nor final.
   \end{itemize}
   We write~$\twoheadrightarrow$ for the union of all these rewriting rules.\end{definition}
                       
@@ -884,7 +896,7 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
   
         As in other rewriting systems, such as state elimination for automata, 
    we require that initial and final states have no incoming 
-  and no outgoing transitions, respectively. 
+  and no outgoing transitions, respectively. \damien{why?}
    We introduce a \emph{normalization} operation that enforces that.
   
   \begin{definition} Let $C$ be a chart. 
@@ -894,10 +906,7 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
   \begin{definition} 
     For a regular expression $e$, we let $C(e)$ be the chart with two states, one initial and one final, and a single transition from the initial state to the final state labeled~$e$.
   \end{definition}
-  
-  
-  
-  
+  \damien{only define $C\twoheadrightarrow^* e$, not  $C(e)$ ? or write it $\mathbf e$ like $\mathbf a$?}
   
   \begin{remark} Let $C$ be a chart and $e$ be a regular expression. If the normalization of $C$ reduces to $C(e)$ we write:\[C \twoheadrightarrow^* e.\]
     \end{remark}
@@ -926,13 +935,15 @@ We say that two regular expressions $e$ and $f$ are \emph{provably equivalent} i
   
   \section{Labeling Charts}
   
-  \begin{definition} Let $C$ be a chart with set of states $Q$ and  transition relation  $\Delta$. A \emph{labeling} of $C$ is a function
+  \begin{definition}
+    \damien{also used with charts over regular expressions}
+    Let $C$ be a chart with set of states $Q$ and  transition relation  $\Delta$. A \emph{labeling} of $C$ is a function
   $\ell:Q \mapsto Re(\Sigma)$ satisfying, for every state $p$:
   \[\ell(p) \ \equiv \underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + \chi(p)\]
 The label of the initial state is called the \emph{root} of the labeling. 
 \medskip
 
-  If $C$ admits a labeling of root $e$, we write \[C\models e.\]
+  If $C$ admits a labeling with root $e$, we write \[C\models e.\]
   \end{definition}
   
   
@@ -942,7 +953,7 @@ The label of the initial state is called the \emph{root} of the labeling.
   
    \subsection{Reducible implies labelable}\label{sec:reducible-implies-decorable}
      \begin{lemma}
-       Let $M$ and $N$ be two charts and $e$ a regular expression. We have:
+       Let $M,N$ be two charts and let $e$ be a regular expression. We have:
        \[ M\twoheadrightarrow N \ \text{ and }\ N \models e \quad \Longrightarrow \quad M \models e. \]
         \end{lemma}
         \begin{proof}
