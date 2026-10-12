@@ -1,0 +1,29 @@
+Définir les expressions régulières, definir la "finalité" de e f(e), comme 1 si e contient le mot vide et 0 sinon.
+Définir le graphe (pointé) d'antimirov d'une regexp. Il ne faut pas l'appeller automate plutôt que graphe
+Définir la bisimulation entre deux graphes (pointés), donner des exemples
+Rapelle l'axiomatisation de Salooma. Le système de Salooma axiomatise l'egalité des langages d'expressions régulières. Rapelle tout ce qu'il faut pour définir l'axiomatisabilité et tout ça. Je ne sais pas s'il faut faire des defs generiques sur l'axiomatisatbilité d'une relation sur les regexp en général ou être plus specifique à ce cas?
+Définir un système de Salooma modifié, que tu appelleras le système de Milner. La différence avec Salooma c'est qu'il y a la règle de distributivité à gauche (e+f)g=ef+eg mais pas la distributivité à droite (cad e(f+g)=ef+eg). Et garde seulement la loi e*=ee*+1 et enlève la loi e*=e*e+1.  Je l'appelle Système Milner car ce dernier a posé la question de s'il suffisait à axiomatiser la bisimulation. Note la prouvabilité e==f (remplace le == par un signe \equiv)
+Enoncer le théorème qu'on va montrer: Le système de Milner axiomatise la bisimulation entre regexp.
+
+Les ingrédients:
+
+Le premier ingrédient:
+On décrit un système de réecriture sur les graphes. 
+Là tu dois me mettre trois règles: la première correspond à la state élimination sauf que ici, l'état à éliminer a une unique arrête sortante qui n'est pas une self loop. La deuxième opération transforme deux arêtes parallèle en une unique arête, La troisième prend un état p qui a potentiellement plusieurs fils, ajoute un nouvel état q qui a comme ensemble de fils un sous ensemble S des fils de q , ajoute une transition de p vers q, et enlève les éléments de S de l'ensemble des fils de p.
+
+Ensuite  on normalise un graphe en  rajoutant un état initial et un état final comme on fait d'habitude. On dit qu'un graphe est réductible si sa normalisation se résuit vers: (mettre le graphe  
+Proposition 1: Si G est le graphe d'une regexp alors G est  réductible 
+(La réciproque est vrai aussi :Si un graphe est réductible alors c'est le graphe d'une expression mais on en a pas besoin pour la preuve du théorème principal, on le démontrera à la fin).
+
+La deuxième notion importante:
+Une décoration compatible d'un graphe c'est un étiquetage d'un graphe avec regexp, de telle sorte que pour toute etiquette e dont les fils sont e_1, ...e_n, on a (e==e_1+...+e_n +f(e)).
+Proposition: Si un graph a deux décorations compatibles, alors e==f où e et f sont les racines de la décoration. 
+
+Le troisième ingrédient:
+Je dit qu'un graphe est compacte s'il n'a pas deux états distincts et bisimilaires. En partant d'un graphe quelquonque, on obtient un compact en fusionnant ses états bisimilaires. On appelle ça la compactification.
+
+Le troisième résultat est que la compactification d'une regexp est une regexp. 
+
+Voici comment on rassembler ces ingrédients: Tout d'abord on montre que pour toutes les reg exp compactes, si elles sont bisimilaires, elles sont prouvables, en effet, si elle sont bisimilaires elles ont le même graphe, ce qui donne deux décorations compatibles pour ce graphe, et donc les expressions sont prouvablement équivalentes.
+
+Maintenant si e est une expression quelquonque et c une regexp pour sa compactification, il est facile de voir que c et ses dérivées forment une décoration compatible pour le graphe de e. Evidememnt e lui même induit une décoration compatible de son graphe. Comme G est le graphe de e il est réductible (prop1) et donc e==c. CE qui achève la preuve.  

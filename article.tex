@@ -2,6 +2,7 @@
 
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -87,6 +88,9 @@ trig/.style={draw,regular polygon,regular polygon sides=3,shape border rotate=18
 \newcommand{\A}{\mathcal{A}}
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\milner}[1]{M(#1)}
+\newcommand{\doubling}[2]{#1_{#2}}
+\newcommand{\erasings}[1]{\overline{#1}}
+\newcommand{\closure}[1]{\mathrm{Cl}(#1)}
 \newcommand{\norm}[1]{\left\| #1 \right\|}
 
 \begin{document}
@@ -121,6 +125,18 @@ e ::= 0 \mid 1 \mid a \mid e + e \mid e\cdot e \mid e^* \qquad (a \in \Sigma)
 
 \begin{notation} 
 We sometimes write $ef$ for $e \cdot f$. The precedence of operations is as usual: star, then concatenation, then union. For instance, $e+f^*g$ means $e+(f^*\cdot g)$.
+\end{notation}
+
+\begin{notation}
+The operations on regular expressions are extended pointwise to sets of regular expressions: for all sets $S$ and $T$ of regular expressions,
+\[
+S+T:=\{e+f \mid e\in S,\ f\in T\},\qquad
+ST:=\{ef \mid e\in S,\ f\in T\},
+\]
+\[
+S^*:=\{e^* \mid e\in S\}.
+\]
+We identify a regular expression $e$ with the singleton $\{e\}$, so that for instance $Se=\{fe \mid f\in S\}$.
 \end{notation}
 \vspace{1em}
 
@@ -598,7 +614,7 @@ where  $a \in \Sigma$:
   A chart is \emph{rooted} if its initial state has no ingoing transitions.
 \end{definition}
 
-\begin{proposition}
+\begin{proposition}\label{prop:rooted}
 For every regular expression $e$, $\milner{e}$ is rooted.
 \end{proposition}
 
@@ -622,6 +638,20 @@ Let $(p,q)\in C\times D$. We say that $p$ and $q$ are \emph{bisimilar}, and writ
 
 We say that $C$ and $D$ are \emph{bisimilar}, and write $C \sim D$, if their initial states are bisimilar.
 \end{definition}
+
+Bisimilarity is an equivalence relation, and a union of bisimulations is again
+one, so that $\sim$ is itself a bisimulation. It is also compatible with
+grafting a fixed chart on the final states:
+
+\begin{lemma}\label{lem:grafting}
+Let $C$, $C'$ and $D$ be charts, and let $p$ and $p'$ be states of $C$ and $C'$ such that $p \sim p'$. Then $p\sim p'$, viewed as states of $C\cdot D$ and of $C'\cdot D$. Symmetrically, $D\sim D'$ implies $C\cdot D\sim C\cdot D'$. In particular, bisimilarity is compatible with concatenation: $e\sim e'$ implies $eg\sim e'g$, and $g\sim g'$ implies $eg\sim eg'$.
+\end{lemma}
+
+\begin{proof}
+Take a bisimulation $S$ relating $p$ and $p'$, and let $R$ be the union of $S$ with the identity relation on the states of $D$. Two states related by $S$ are final in $C$ and $C'$ simultaneously, hence also in $C\cdot D$ and $C'\cdot D$; moreover the composition equips both with the derivatives of the initial state of $D$, whose targets are related by $R$. The states of $D$ keep their derivatives and finalities in both compositions. So $R$ is a bisimulation.
+
+For the second claim, take a bisimulation $S$ relating the initial states of $D$ and $D'$, and add to it the identity relation on the states of $C$: a final state of $C$ receives the derivatives and the finality of the initial state of $D$, respectively of $D'$, which $S$ matches.
+\end{proof}
 
 
 
@@ -659,7 +689,7 @@ If $\chi(e)=1$ we write $e\Downarrow$ and say that $e$ is \emph{final}. Otherwis
 
 \text{\scriptsize (2)}  & (e + f) + g = e + (f + g) 
   & \text{\scriptsize (6)}  & 1e = e = e1           
-  & \text{\scriptsize (10)} & 0e = 0 = e0 \\
+  & \text{\scriptsize (10)} & 0e = 0 \\
 
 \text{\scriptsize (3)}  & e + e = e                 
   & \text{\scriptsize (7)}  & (e+f)g = eg + fg      
@@ -991,7 +1021,7 @@ The label of the initial state is called the \emph{root} of the labeling.
   \end{proof}
   
   
-  \begin{proposition} Let $C$ be a chart safe for reduction and let $e$ and $f$ be two regular expressions. We have:
+  \begin{proposition}\label{prop:labeling-unique} Let $C$ be a chart safe for reduction and let $e$ and $f$ be two regular expressions. We have:
    \[ C \models e\ \text{ and }\  C\twoheadrightarrow^* f\quad \Longrightarrow\quad e\equiv f.\] 
   \end{proposition}
   \begin{proof} 
@@ -1007,283 +1037,395 @@ The label of the initial state is called the \emph{root} of the labeling.
   
   
 
-\section{Erasing transitions from Milner charts}
-
-In general, erasing transitions from a Milner chart does not yield a Milner Chart. However, we show that if the erased transitions are \emph{coherent} and \emph{border}, then it does.
-
-\begin{definition} Let $M$ be a chart whose transition set is $\Delta$.~\\[-5pt]
-
-  A transition of $M$ is \emph{border} if its source is either initial or final.~\\[-5pt]
-  
-  A set $\Gamma\subseteq \Delta$ is \emph{coherent}, if for every  transitions  
-  $t, u\in \Delta$, whose sources are final and having the same label and target, we have:\vspace{-4pt}
-   $$ t\in \Gamma \quad \Leftrightarrow \quad u\in \Gamma.$$ 
-\end{definition}
-
-
-\begin{definition}  
-A \emph{letter erasing} of an expression $e$ is an expression obtained from $e$ by replacing some letter occurrences by $0$.
-\end{definition}
-
-\begin{proposition} Let $e$ be an expression and $\Gamma$ be a coherent set of border transitions of $M(e)$. There is a letter erasing $f$ of $e$ such that:
-  $$ M(e)\setminus \Gamma = M(f).$$
-\end{proposition}
 
 \section{Completeness of regular expressions}
 
 \subsection{Partial derivatives}
-
-
 \begin{notation}
-For a set $S$ of regular expressions and a regular expression $e$,
-we write
-\[
-Se :=\{fe \mid f\in S\}.
-\]
+If $e$ is an expression and $X$ a set of expressions, we write $Xe$ for the set $\{ge\mid g\in X\}$.
 \end{notation}
+ 
+
+%Here the product of a set $T$ of expressions with an expression $f$ is taken
+%modulo the identity $1f=f$, as in Antimirov's calculus~\cite{Antimirov1996}:
+%\[
+ % Tf:=\{gf\mid g\in T,\ g\neq 1\}\cup\{f\mid 1\in T\}.
+%\]
+%Thus $\delta_a(ab)=\{b\}$ rather than $\{1b\}$, and the right factor of a
+%product may itself be one of its derivatives. The same convention is used for
+%the products occurring in the derivatives up to an occurrence defined below.
 
 \begin{definition}
- Let $S$ be a set of regular expressions. The set $\partial_S(e)$ of
-  \emph{derivatives of $e$ up to $S$} is defined inductively by
+  For $a\in\Sigma$, the one-step derivative $\delta_a(e)$ is defined by
   \[
-  \partial_S(e)=\emptyset\quad  \text{ if } \quad e\in S
+  \delta_a(0)=\delta_a(1)=\emptyset,\qquad
+  \delta_a(b)=
+  \begin{cases}
+    \{1\} & \text{if }a=b,\\
+    \emptyset & \text{otherwise},
+  \end{cases}
   \]
-  and, for $e\notin S$, by the following clauses:
-  \begin{itemize}
-  \item $\partial_S(0)=\partial_S(1)=\emptyset$;
-  \item $\partial_S(a)={1}$ for $a\in\Sigma$;
-  \item $\partial_S(e+f)=\partial_S(e)\cup\partial_S(f)$;
-  \item $\partial_S(ef)=\partial_S(e)f\cup\partial_S(f)$;
-  \item $\partial_S(e^*)=\partial_S(e)e^*$.
-  \end{itemize}
-
-\medskip
-
-  We let $\partial(e):=\partial_{\emptyset}(e)$.
-  When $g$ is a regular expression, we write $\partial_g(e):=\partial_{\{g\}}(e)$.
-  For regular expressions $f$ and $g$, we write
   \[
-    \partial(f)|_{\sim g} := \{ h \in \partial(f) \mid h \sim g \}
+  \delta_a(e+f)=\delta_a(e)\cup\delta_a(f),\qquad
+  \delta_a(ef)=\delta_a(e)f\cup \delta_a(f),\quad \text{and} \quad \delta_a(e^*)=\delta_a(e)e^*.
   \]
-  for the restriction of $\partial(f)$ to expressions bisimilar to $g$.
+
+  \medskip
+  Extend this definition to words by:
+  \[ \delta_\varepsilon(e)=\{e\} \quad \text{and} \quad
+    \delta_{wa}(e)=\bigcup_{f\in\delta_w(e)}\delta_a(f).
+  \]
+  \medskip
+
+  The set of \emph{derivatives} of $e$, denoted by $\delta(e)$, is
+  \[
+    \delta(e):=\bigcup_{w\in\Sigma^*}\delta_w(e).
+  \]
   \end{definition}
-  
-  
 
-% Alternative possible definition.
-% \begin{definition}
-%   Let $a,b \in \Sigma$. The partial derivative of a regular expression
-%   with respect to $a$ is defined inductively by:
-%   \[
-%   \partial_a(0)=\partial_a(1)=\varnothing,
-%   \]
-%   \[
-%   \partial_a(b)=
-%   \begin{cases}
-%   \{1\} & \text{if } a=b,\\
-%   \varnothing & \text{otherwise},
-%   \end{cases}
-%   \]
-%   \[
-%   \partial_a(e+f)=\partial_a(e)\cup\partial_a(f),
-%   \]
-%   \[
-%   \partial_a(ef)
-%   =
-%   \partial_a(e)f
-%   \cup
-%   \begin{cases}
-%   \partial_a(f) & \text{if } e\Downarrow,\\
-%   \varnothing & \text{otherwise},
-%   \end{cases}
-%   \]
-%   \[
-%   \partial_a(e^*)=\partial_a(e)e^*.
-%   \]
-%
-%   Here, for a set $S$ of regular expressions and a regular expression $f$,
-%   we write
-%   \[
-%   Sf=\{sf \mid s\in S\}.
-%   \]
-%
-%   The partial derivatives with respect to words are defined by:
-%   \[
-%   \partial_\varepsilon(e)=\{e\},
-%   \]
-%   and
-%   \[
-%   \partial_{wa}(e)
-%   =
-%   \bigcup_{f\in\partial_w(e)} \partial_a(f),
-%   \]
-%   for every $w\in\Sigma^*$ and $a\in\Sigma$.
-%
-%   The set of iterated derivatives of $e$ is the following set:
-%   \[
-%   \partial(e)
-%   =
-%   \bigcup_{w\in\Sigma^*}\partial_w(e).
-%   \]
-%
-% \end{definition}
+
+
+
+
+
+
+
+\begin{definition} \todo{retravaille cette def pour la rtendre plus jolie et poluis precise.}
+  Let $o\in\operatorname{Occ}(e)$. The \emph{derivative of $e$ at $o$}, denoted by $\delta^o(e)$, is defined  by following the unique subexpression containing $o$:
+  \[
+    \delta^o(a)=1, \text{if the occurence of $a$ is $o$},
+  \]
+  \[
+    \delta^o(e+f)=
+    \begin{cases}
+      \delta^o(e) & \text{if }o\in\operatorname{Occ}(e),\\
+      \delta^o(f) & \text{if }o\in\operatorname{Occ}(f),
+    \end{cases}
+  \]
+  \[
+    \delta^o(ef)=
+    \begin{cases}
+      \delta^o(e)f & \text{if }o\in\operatorname{Occ}(e),\\
+      \delta^o(f)  & \text{if }o\in\operatorname{Occ}(f),
+    \end{cases}
+    \qquad
+    \delta^o(e^*)=\delta^o(e)e^*.
+  \]
+  Finally, the marks are forgotten by applying $\pi$ to the resulting
+  expression.
+\end{definition}
+
+
+
+\begin{definition}
+  Two letter occurrences $o_1,o_2\in\operatorname{Occ}(e)$ are
+  \emph{entangled in $e$},  if
+  \[
+    \delta^{o_1}(e)=\delta^{o_2}(e).
+  \]
+\end{definition}
+
+\begin{definition}
+  A \emph{letter erasing} of an expression $e$ is a set
+  $\alpha\subseteq\operatorname{Occ}(e)$. We write $\alpha(e)$ for the
+  expression obtained from $e$ by replacing the occurrences in $\alpha$ by
+  $0$, while leaving the rest of its syntax tree unchanged.
+\smallskip
+
+  The erasing $\alpha$ is \emph{coherent} if it is closed under entanglement:
+  \[  \forall o_1,o_2\in\operatorname{Occ}(e),\qquad
+    o_1\in\alpha
+    \ \text{ and }\
+    \delta^{o_1}(e)=\delta^{o_2}(e)
+    \quad\Longrightarrow\quad
+    o_2\in\alpha.
+  \]
+\end{definition}
+
+\begin{definition}
+  Let $\alpha$ be a letter erasing of $e$, and let $d$ be a derivative of
+  $e$. Every letter occurrence of $d$ is a residual copy of an occurrence of
+  $e$. The \emph{residual erasing induced by $\alpha$ on $d$} is the erasing of $d$ containg only the residual copies of the occurrences in $\alpha$. 
+
+By abuse of notation we write it also $\alpha$.
+\end{definition}
+
+\begin{lemma}\label{lem:residual-erasing}
+  If $\alpha$ is a coherent letter erasing of $e$ and $f$ is a derivative of
+  $e$, then ${\alpha}$ is also a coherent letter erasing of $f$.
+\end{lemma}
+
+
+\begin{lemma}\label{lem:extend-residual-erasing}
+  Let $d$ be a derivative of $e$ and $\beta$ a coherent letter erasing
+  of $d$. Then there is a coherent letter erasing $\alpha$ of $e$ whose
+  residual erasing on $d$ is $\beta$.
+\end{lemma}
+
+
+\begin{lemma}\label{lem:derivative-of-erasing}
+  Let $\alpha$ be a coherent letter erasing of $e$. If $d'$ is a derivative of
+  $\alpha(e)$, then there is a derivative $d$ of $e$ such that
+  \[
+   {\alpha}(d)=d'.
+  \]
+\end{lemma}
+
+\begin{definition}
+  Let $\alpha$ be a coherent letter erasing of $e$, and let $g$ be a regular
+  expression. We write
+  \[
+    e\mathrel{\simeq_g}\alpha(e)
+  \]
+  if for every derivative $d$ of $e$, we have $dg\sim \alpha(d)e$.
+\end{definition}
+
+
+
+
+\begin{lemma}\label{lem:quiescent-factor-separation}
+  Let $\alpha$ be a coherent letter erasing of $ef$.
+  \[
+  \text{If } \quad ef\mathrel{\simeq_g}\alpha(ef) \qquad \text{ then }\qquad  e\mathrel{\simeq_{fg}}\alpha(e)\quad  \text{ and }\quad f\mathrel{\simeq_g}\alpha(f).
+  \]
+\end{lemma}
+
+
 
 \subsection{Subexpression orderings}
 
 \begin{definition}
 For every regular expressions $e$ and $f$, we write:
-\begin{itemize}
-  \item $f \prec e \quad\Longleftrightarrow\quad f \in \partial(e)$;
-  \item $f \leq e \quad\Longleftrightarrow\quad e + f \equiv e$;
-  \item $f \sqsubset e \quad\Longleftrightarrow\quad
-    \exists g,\; f \leq g \prec e$.
-\end{itemize}
+\[f \sqsubseteq e \quad := \quad
+    \exists g\in\delta(e),\; f+g \equiv g.
+    \]
+    We say that $f$ is a \emph{subderivative} of $e$.
 \end{definition}
 
 
 
-\begin{lemma}
-The relations $\prec$, $\leq$ and $\sqsubset$ are transitive.
-\end{lemma}
 
 \begin{proposition}\label{prop:sim-sim-or-sim-h-star-0}
-  Let $e$, $f$ and $g$ be regular expressions. If $eg \sim fg$, then either
-  \begin{itemize} 
-    \item $g \sim h^* 0\ $ for some $\ h \sqsubset e\ $ or $\ h \sqsubset f$, or 
-    \item $e \sim f$, or
-    \item A faire. \todo{C'est un cas que j'ai loupé, mais son escence apparaissait déjà dans des versions antérieurs de la preuve. Dans ce troisième cas,  il existe $e'$ tel que  $eg \sim e'g$, l'expression $e'$ est obtenues par des effacement d'occurences de lettres de $e$. }
-  \end{itemize}
-  \end{proposition}
+  Let $e$, $f$ and $g$ be regular expressions such that $eg \sim fg$. \smallskip
 
-\subsection{Completeness}
-
-\begin{definition} Let $S$ be a set of regular expressions.
-\medskip
-
-  \noindent The set $S$ is \emph{complete} if for every $f_1, f_2 \in S$:
-  \[
-    f_1 \sim f_2\ \Longrightarrow\  f_1 \equiv f_2;
-  \]
- The set  $S$ is \emph{strongly complete} if, for every expression $g$ and every $f_1, f_2 \in S$:
-  \[
-    f_1 g \sim f_2 g\ \Longrightarrow\  f_1 g \equiv f_2 g.
-  \]
-  \medskip
-  A regular expression $e$ is complete (resp. strongly complete) if its set of derivatives is complete (resp. strongly complete).
-\end{definition}
-
-\begin{lemma}\label{lem:prec-complete} If $f\prec e$ and $e$ is complete, then $f$ is complete.
-\end{lemma}
-
-\begin{proposition}\label{prop:sc-closure}
-  Let $e$ be a strongly complete regular expression. Then:
+  \noindent Then at least one of the following holds:
   \begin{enumerate}
-    \item for all $g, h \sqsubset e$, the expression $gh^*$ is strongly complete;
-    \item the expression $e0$ is strongly complete.
+    \item $g \sim h^* 0$ for some $h \sqsubseteq e$ or $h \sqsubseteq f$;
+    \item there are coherent letter erasings $\alpha$ and $\beta$ of $e$ and $f$,
+    respectively, where:
+    \[
+      e{\simeq_g}\alpha(e),\qquad
+      f{\simeq_g}\beta(f)
+      \qquad\text{and}\qquad
+      \alpha(e)\sim\beta(f).
+    \]
   \end{enumerate}
-  \end{proposition}
+\end{proposition}
+
+
+
+
+
+
 
 \subsection{Main results}
+
+\begin{definition} Let $X$ be a set of expressions. We say that $X$ is \emph{complete} if: 
+  \[
+    \forall e,f\in X,\qquad e\sim f\quad\Longrightarrow\quad e\equiv f. \]
+    We say that $X$ is \emph{strongly complete} if for every expression $g$: 
+    \[
+      \forall e,f\in X,\qquad eg\sim fg\quad\Longrightarrow\quad eg\equiv fg. \]
+
+  \noindent An expression $e$ is \emph{(strongly) complete} if the set $\delta(e)$
+  is (strongly) complete.
+\end{definition}
+
+\begin{lemma}\label{lem:strong-completeness-closure}
+  Let $e$ be strongly complete. Then $e0$ is strongly complete. 
+  If $h,k\sqsubseteq e$, $hk^*$ is also strongly complete.
+\end{lemma}
+
+\begin{lemma}\label{lem:labeling-by-derivatives}
+  For every expression $e$, the chart $\milner{e}$ admits a labeling $\ell$
+  with root $e$ whose codomain is $\delta(e)$.
+\end{lemma}
+
 
 \begin{proposition}\label{prop:complete-bisim}
 If $e \sim f$ and $e$ is complete, then $e \equiv f$.
 \end{proposition}
 
-\begin{proposition} Let $e, f$ and $g$ be regular expressions of arity zero. \smallskip
-
-If $e \sim f$, $\partial_g(e)$ is complete and $\partial(f)|_{\sim g}$ is complete, then $e \equiv f$.
-\end{proposition}
 
 
+\begin{definition}\label{def:doubling}
+  Let $C$ be a chart and let $S$ be a set of its states. For
+  every $q\in S$, let $C_q$ be a fresh copy of $C$ rooted at $q$.
+  \medskip
+
+  The \emph{doubling of $C$ along $S$}, denoted by $\doubling{C}{S}$, is the
+  chart obtained from the disjoint union of $C$ and of the charts $C_q$ for $q\in S$ as follows:
+  \begin{itemize}
+    \item for every $q\in S$, each transition $q\xrightarrow{a}p$ of
+    $C$ is removed and replaced by the transition $q\xrightarrow{a}p'$, where $p'$ is the copy of $p$ in $C_q$,
+    \item every state keeps the finality of the state it copies,
+    \item the initial state is that of $C$.
+  \end{itemize}
+\end{definition}
+
+\begin{definition}
+We say that a chart $C$ is \emph{nullary} if $C0\sim C$.
+An expression is \emph{nullary} if its milner chart is.
+\end{definition}
+
+\begin{lemma}\label{lem:doubling-reducible}
+  Let $C$ be a nullary chart  and let $S$ be a set of its states. If $C$ is reducible, then so is 
+  $\doubling{C}{S}$.
+\end{lemma}
+
+
+
+\begin{proposition}\label{prop:complete-bisim-arity-zero} Let $e$ and $f$ be expressions and $g$ a nullary expression.
+  If the following conditions hold:
+  \begin{itemize}
+    \item  $eg \sim f$,
+    \item the set $\delta(e)g$ is complete, and
+    \item for every derivative $d$ of $f$, if $d\sim g$ then
+    $d\equiv g$,
+  \end{itemize}
+    then $eg \equiv f$.
+  \end{proposition}
+  
+
+
+\begin{lemma}\label{lem:erased-derivative-complete}
+  Suppose that every coherent letter erasing of $e$ is strongly complete.
+  Let $\alpha$ be a coherent letter erasing of $e$, let
+  $d\in\delta(\alpha(e))$, and let $\beta$ be a coherent letter erasing of
+  $d$. Then $\beta(d)$ is complete.
+\end{lemma}
+
+\begin{theorem}\label{thm:special-erasing}
+  Let $\alpha$ be a coherent letter erasing of $e$, and let $g$ be a regular
+  expression. If
+  \[
+    e{\simeq_g}\alpha(e),
+  \]
+  then
+  \[
+    eg\equiv\alpha(e)g.
+  \]
+\end{theorem}
+
+\begin{proof}
+By induction on the structure of $e$.
+\end{proof}
 
 \begin{theorem}
-Every regular expression is strongly complete.
+The coherent letter erasings of every regular expression is strongly complete.
 \end{theorem}
-\begin{proof}
-By induction on $e$.
-\begin{itemize}
-  \item \textbf{Case $e = a\in \Sigma$.} It is immediate.
-  \item \textbf{Case $e \in \{0, 1\}$.} The condition is vacuous.
 
-  \item \textbf{Case $e+f$.}
-  By the induction hypothesis, both $e$ and $f$ are strongly complete.
-  Let $g$, $h_1$ and $h_2$ be regular expressions such that
-  \[
-    h_1 \prec e+f,\qquad h_2 \prec e+f,
-    \qquad\text{and}\qquad h_1g \sim h_2g.
-  \]
-  Since $\partial(e+f)=\partial(e)\cup\partial(f)$, there are two cases.
+\begin{proof}[Cas de base]
+Les expressions $0$ et $1$ n'ont qu'une seule dérivée. Les seuls effacements
+cohérents d'une lettre $a$ étant $a$ et $0$, il reste à traiter la seule
+comparaison non triviale pour $a$, à savoir $ag\sim g$.
 
-  \begin{itemize}
-    \item Suppose first that $h_1$ and $h_2$ are derivatives of the same
-    summand. If $h_1,h_2\prec e$, then the strong completeness of $e$
-    yields $h_1g\equiv h_2g$. The case $h_1,h_2\prec f$ is identical.
-
-    \item Suppose now, without loss of generality, that
-    $h_1\prec e$ and $h_2\prec f$. By
-    Proposition~\ref{prop:sim-sim-or-sim-h-star-0}, either:
-    \begin{itemize}
-      \item $h_1\sim h_2$. Since $e$ is complete,
-      Lemma~\ref{lem:prec-complete} implies that $h_1$ is complete.
-      Proposition~\ref{prop:complete-bisim} therefore gives
-      $h_1\equiv h_2$, and hence $h_1g\equiv h_2g$ by congruence.
-
-      \item $g\sim h^*0$ for some
-      $h\sqsubset h_1$ or $h\sqsubset h_2$.
-      Assume that $h\sqsubset h_1$; the other case is symmetric.
-      Since $h_1\prec e$, we have $h_1\sqsubset e$, and transitivity
-      gives $h\sqsubset e$. Proposition~\ref{prop:sc-closure}(1)
-      shows that $h_1h^*$ is strongly complete, and
-      Proposition~\ref{prop:sc-closure}(2) then shows that
-      $h_1h^*0$ is strongly complete, hence complete.
-
-      From $g\sim h^*0$, compatibility of bisimilarity with
-      concatenation gives $h_1g\sim h_1h^*0$. Together with
-      $h_1g\sim h_2g$, this also gives $h_2g\sim h_1h^*0$.
-      Applying Proposition~\ref{prop:complete-bisim} twice yields
-      \[
-        h_1g\equiv h_1h^*0\equiv h_2g.
-      \]
-    \end{itemize}
-  \end{itemize}
-  \item \textbf{Case $ef$.}
-  By the induction hypothesis, both $e$ and $f$ are strongly complete.
-  Let $g$, $h_1$ and $h_2$ be regular expressions such that
-  \[
-    h_1\prec ef,\qquad h_2\prec ef,
-    \qquad\text{and}\qquad h_1g\sim h_2g.
-  \]
-  Since $\partial(ef)=\partial(e)f\cup\partial(f)$, there are three cases.
-
-  \begin{itemize}
-    \item Suppose first that $h_1,h_2\prec f$. The strong completeness
-    of $f$ immediately yields $h_1g\equiv h_2g$.
-
-    \item Suppose that
-    \[
-      h_1=k_1f,\qquad h_2=k_2f,
-      \qquad\text{with}\qquad k_1,k_2\prec e.
-    \]
-    Since $k_1(fg)\sim k_2(fg)$, the strong completeness of $e$ gives
-    \[
-      k_1fg\equiv k_2fg,
-    \]
-    that is, $h_1g\equiv h_2g$.
-
-    \item It remains to consider the mixed case. Without loss of
-    generality, let
-    \[
-      h_1=kf\quad\text{with }k\prec e,
-      \qquad\text{and}\qquad h_2\prec f.
-    \]
-  
-  \end{itemize}
-
-   \item \textbf{Case $e^*$.}
-   Let $g, h_1$ and $h_2$ be regular expressions such that:
-    \[h_1\prec e^*\quad \text{and}\quad h_2\prec e^*\quad \text{and}\quad h_1 g \sim h_2 g.\]
-\end{itemize}
+L'état $ag$ n'est pas final et sa seule transition, étiquetée $a$, mène à $g$.
+Le quotient par la bisimilarité de la partie de $G(g)$ atteignable est donc un
+état non final muni d'une unique boucle $a$. On en extrait l'équation gardée
+$x=ax$, et la règle de Salomaa donne $g\equiv a^*0$ ; le dépliage de l'étoile
+conclut $ag\equiv g$.
 \end{proof}
+
+\begin{proof}[Cas de la somme]
+Écrivons $\alpha(e+f)=E+F$, où $E$ et $F$ sont fortement complètes par
+hypothèse d'induction.
+
+Deux dérivées propres issues du même terme se comparent par la forte complétude
+de ce terme. Reste la comparaison mixte
+\[
+  pg\sim qg,\qquad p\in\delta(E),\quad q\in\delta(F),
+\]
+à laquelle on applique la proposition~\ref{prop:sim-sim-or-sim-h-star-0}.
+
+Dans la première alternative, $g\sim h^*0$ avec $h\sqsubseteq E$ ou
+$h\sqsubseteq F$. Le lemme~\ref{lem:strong-completeness-closure} rend alors
+$hh^*0$ fortement complète, donc complète, et le dépliage $h^*0\equiv hh^*0$
+montre qu'elle est bisimilaire aux deux membres : la
+proposition~\ref{prop:complete-bisim} donne $pg\equiv qg$.
+
+Dans la seconde alternative, on obtient des effacements cohérents $\beta$ de
+$p$ et $\gamma$ de $q$ tels que $\beta(p)\sim\gamma(q)$, et le
+théorème~\ref{thm:special-erasing} donne $pg\equiv\beta(p)g$ et
+$qg\equiv\gamma(q)g$. Comme $\gamma(q)$ est complète par le
+lemme~\ref{lem:erased-derivative-complete}, on a $\beta(p)\equiv\gamma(q)$,
+donc $pg\equiv qg$.
+
+Reste à comparer la dérivée initiale $E+F$ à une dérivée propre $d$. Un pas de
+dérivation de $(E+F)g$ et de $dg$ apparie des transitions de même étiquette
+dont les cibles sont des dérivées propres suivies de $g$ ; les cas précédents en
+font des équivalences prouvables, et les termes constants coïncident car la
+bisimilarité préserve la finalité.
+\end{proof}
+
+\begin{proof}[Cas de l'étoile]
+Écrivons $\alpha(e^*)=E^*$, où $E$ est fortement complète par hypothèse
+d'induction, et posons $X:=E^*g$.
+
+Les dérivées de $E^*$ sont $E^*$ et les $pE^*$ avec $p\in\delta(E)$. Deux
+dérivées de la seconde forme se comparent par la forte complétude de $E$, de
+suffixe $X$. Reste le cas $X\sim pX$, auquel on applique la
+proposition~\ref{prop:sim-sim-or-sim-h-star-0} à $1$, $p$ et $X$.
+
+Dans la première alternative, $X\sim h^*0$ avec $h\sqsubseteq E$ (ou $h$
+dérivée de $1$) ; comme ci-dessus, $hh^*0$ est complète et bisimilaire aux deux
+membres, donc $X\equiv pX$.
+
+Dans la seconde, l'effacement de $1$ est vide et l'on obtient un effacement
+$\beta$ de $p$ tel que $1\sim\beta(p)$ et $pX\equiv\beta(p)X$. Or $\beta(p)$
+est complète, donc $\beta(p)\equiv1$ et $pX\equiv X$.
+\end{proof}
+
+\begin{proof}[Cas de la composition]
+Écrivons $\alpha(ef)=EF$, où $E$ et $F$ sont les effacements cohérents
+induits sur $e$ et sur $f$ ; ils sont fortement complets par hypothèse
+d'induction. Dans tout ce cas, les lettres $e_1,e_2,\dots$ désignent des
+dérivées de $E$, et les lettres $f_1,f_2,\dots$ des dérivées de $F$.
+
+Toute dérivée de $EF$ est de la forme $e_1F$, ou est une dérivée $f_1$ de $F$.
+Soient $d_1,d_2$ deux telles dérivées telles que $d_1g\sim d_2g$. Si toutes deux
+sont des dérivées de $F$, la forte complétude de $F$ conclut ; si ce sont $e_1F$
+et $e_2F$, celle de $E$ conclut, de suffixe commun $Fg$.
+
+Reste la comparaison mixte
+\[
+  e_1Fg\sim f_1g,
+\]
+à laquelle on applique la proposition~\ref{prop:sim-sim-or-sim-h-star-0} à
+$e_1F$, $f_1$ et $g$.
+
+Si $g\sim h^*0$ avec $h\sqsubseteq F$, alors $f_1,h\sqsubseteq F$, donc le
+lemme~\ref{lem:strong-completeness-closure} rend $f_1h^*0$ fortement complète,
+donc complète. Comme elle est bisimilaire aux deux membres, la
+proposition~\ref{prop:complete-bisim} donne $e_1Fg\equiv f_1g$.
+
+Dans la seconde alternative, on obtient des effacements cohérents $\beta$ de
+$e_1F$ et $\gamma$ de $f_1$ tels que $\beta(e_1F)\sim\gamma(f_1)$, et le
+théorème~\ref{thm:special-erasing} donne $e_1Fg\equiv\beta(e_1F)g$ et
+$f_1g\equiv\gamma(f_1)g$. Comme $\gamma(f_1)$ est complète par le
+lemme~\ref{lem:erased-derivative-complete}, on a
+$\gamma(f_1)\equiv\beta(e_1F)$, donc $e_1Fg\equiv f_1g$.
+
+\smallskip
+\noindent\textbf{Cas restant.}
+Supposons enfin $g\sim h^*0$ avec $h\sim e_2F$ pour une dérivée $e_2$ de $e_1$,
+et posons
+\[
+  g':=(e_2F)^*0.
+\]
+Montre que $f_2g'$ est complet. Le seul cas interessant c'est le cas des dérivées mixtes genre $f_2g'\sim e_3Fg'$ solve that using \label{prop:complete-bisim-arity-zero}.
+\end{proof}
+
   \begin{thebibliography}{9}
 \bibitem{Antimirov1996}
 V. Antimirov, ``Partial derivatives of regular expressions and finite automaton constructions,'' \emph{Theoretical Computer Science}, 155(2): 291--319, 1996.
