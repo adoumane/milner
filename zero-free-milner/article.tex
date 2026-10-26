@@ -121,9 +121,9 @@ The set of derivatives  of a state $q$ is defined by:
 \[
 D(q)=\{(a,q')\mid(q,a,q')\in\Delta\},
 \]
-and its finality is the function $\chi$ defined as follows:
+and its finality is the function $\epsilon$ defined as follows:
 \[
-\chi(q)=
+\epsilon(q)=
 \begin{cases}
 1 & \text{if $q$ is final},\\
 0 & \text{otherwise.}
@@ -519,7 +519,7 @@ For every regular expression $e$, $\milner{e}$ is rooted.
 \begin{definition}
 Let $C$ and $D$ be two charts with state sets $Q$ and $Q'$ and respectively. A relation $R\subseteq Q\times Q'$ is a \emph{bisimulation} between $C$ and $D$ if:
 \begin{itemize}
-    \item $(p,q)\in R \ \ \Rightarrow\ \ \chi(p)=\chi(q)$, 
+    \item $(p,q)\in R \ \ \Rightarrow\ \ \epsilon(p)=\epsilon(q)$, 
     \item $\xlongleftarrow{a}_{C}\cdot R\ =\ R \cdot \xlongleftarrow{a}_{D}$ and
     \item $\xlongrightarrow{a}_{C} \cdot R\ =\ R \cdot \xlongrightarrow{a}_{D}$.
 \end{itemize}
@@ -729,7 +729,8 @@ and no outgoing transitions, respectively.
 We introduce a \emph{normalization} operation that enforces that.
 
 \begin{definition} Let $N$ be a network. 
-The \emph{normalization} of~$N$, denoted~$\norm{N}$, is the network obtained from $N$ by adding a fresh state, called the \emph{sink}, which becomes the unique final state, and adding a $1$-transition from each final state of $N$ to the sink.
+The \emph{normalization} of~$N$, denoted~$\norm{N}$, is obtained from $N$ by adding a fresh copy of each initial state and a fresh state called the \emph{sink}.
+The copies become the initial states, each with a $1$-transition to the state it copies, and the sink becomes the unique final state, with a $1$-transition from each former final state to it.
 \end{definition}
 
 \begin{definition} 
@@ -788,9 +789,14 @@ Let $N$ be a network. If there is a function $\varphi$ from the set of initial s
 
 \begin{definition} Let $N$ be a network with a transition relation  $\Delta$. A \emph{labeling} of $N$ is a function
 $\ell:Q \mapsto Re(\Sigma)$ satisfying, for every state $p$:
-\[\ell(p) \ \equiv \underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + \chi(p)\]
+\[\ell(p) \ \equiv \underset{(p,a, q) \in \Delta}{\sum} a \ell(q) + \epsilon(p)\]
 The restriction of $\ell$ to the set of initial states of $N$ is called the \emph{interface} of the labeling. If $N$ admits a labeling with interface $\varphi$, we write \[N\models \varphi.\]
 \end{definition}
+
+\begin{remark}
+When $N$ is a chart, $\varphi$ can be identified with an expression $e$, and we write instead
+\[N\models e.\]
+\end{remark}
 
 
 
